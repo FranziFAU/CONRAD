@@ -2,6 +2,7 @@ package edu.stanford.rsl.tutorial.FranziFAU;
 
 import ij.ImageJ;
 import edu.stanford.rsl.conrad.data.numeric.Grid2D;
+import edu.stanford.rsl.conrad.data.numeric.InterpolationOperators;
 import edu.stanford.rsl.conrad.data.numeric.NumericPointwiseOperators;
 
 public class MyPhantom extends Grid2D{
@@ -37,7 +38,7 @@ public class MyPhantom extends Grid2D{
 			}			
 		}
 		
-		// Rechteck mit Aufsatz malen
+		// Rechteck malen
 		
 		for(int i = height -6 ; i > midh; i--){
 			for(int j = width - 6; j > midw; j --){
@@ -51,7 +52,29 @@ public class MyPhantom extends Grid2D{
 	}
 
 	private Grid2D radonTransform(Grid2D image,int numberProjections,int detectorSpacing, int detectorPixel){
-		Grid2D result = new Grid2D(image);
+		Grid2D result = new Grid2D(detectorPixel,numberProjections);
+		
+		for(int y = 0; y < numberProjections; y++){
+			for(int x = 0; x < detectorPixel; x++){
+				int startx = 0;
+				int starty = 0;
+				int endx = 0;
+				int endy = 0;
+				
+				// Integral ueber Gerade
+				float resultValue = 0;
+				for(int i = startx; i < endx; i++){
+					resultValue += InterpolationOperators.interpolateLinear(this,x,y);					
+				}
+				resultValue /= (endx-startx);
+				this.setAtIndex(x, y, resultValue);
+				
+			}
+		}
+		
+		
+		
+		
 		return result;
 	}
 	
