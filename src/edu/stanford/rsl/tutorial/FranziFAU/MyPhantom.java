@@ -7,9 +7,12 @@ import edu.stanford.rsl.conrad.data.numeric.NumericPointwiseOperators;
 
 public class MyPhantom extends Grid2D{
 
-	public MyPhantom(int width, int height){
+	public MyPhantom(int width, int height, double d, double e){
 		
 		super(width,height);
+		
+		this.setSpacing(d,e);
+		this.setOrigin(width - ((width-1)/2),height - ((height-1)/2));
 		
 		
 		int midw = width / 2;
@@ -51,36 +54,11 @@ public class MyPhantom extends Grid2D{
 		
 	}
 
-	private Grid2D radonTransform(Grid2D image,int numberProjections,int detectorSpacing, int detectorPixel){
-		Grid2D result = new Grid2D(detectorPixel,numberProjections);
-		
-		for(int y = 0; y < numberProjections; y++){
-			for(int x = 0; x < detectorPixel; x++){
-				int startx = 0;
-				int starty = 0;
-				int endx = 0;
-				int endy = 0;
-				
-				// Integral ueber Gerade
-				float resultValue = 0;
-				for(int i = startx; i < endx; i++){
-					resultValue += InterpolationOperators.interpolateLinear(this,x,y);					
-				}
-				resultValue /= (endx-startx);
-				this.setAtIndex(x, y, resultValue);
-				
-			}
-		}
-		
-		
-		
-		
-		return result;
-	}
+
 	
  	public static void main(String[] args) {
 		new ImageJ();
-		MyPhantom bild = new MyPhantom(512,512);
+		MyPhantom bild = new MyPhantom(512,512,1.0,1.0);
 		bild.show();
 		System.out.println(NumericPointwiseOperators.max(bild));
 		NumericPointwiseOperators.sum(bild);
