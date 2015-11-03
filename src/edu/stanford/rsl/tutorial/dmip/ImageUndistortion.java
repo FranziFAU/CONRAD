@@ -197,7 +197,7 @@ public class ImageUndistortion{
 		
 		
 		// Compute the distorted points:
-		// XD2 = XU2 + (XU2 - XD2)
+		// TODO XD2 = XU2 + (XU2 - XD2)
 		Xd2 = SimpleOperators.subtract(Xu2, Xd2);
 		Xd2.add(Xu2);
 		Yd2 = SimpleOperators.subtract(Yu2, Yd2);
@@ -257,6 +257,7 @@ public class ImageUndistortion{
 			{
 				for(int j = 0; j <= (degree-i); j++)
 				{
+					//TODO
 					A.setElementValue(r, cc, Math.pow(Xu2_vec.getElement(r),i)*Math.pow(Yu2_vec.getElement(r), j));
 					cc++;
 				}
@@ -269,6 +270,7 @@ public class ImageUndistortion{
 		
 		
 		// Compute the distortion coefficients
+		//TODO
 		SimpleVector u = SimpleOperators.multiply(Aplus, Xd2_vec);
 		SimpleVector v = SimpleOperators.multiply(Aplus, Yd2_vec);
 		
@@ -290,7 +292,8 @@ public class ImageUndistortion{
 				{
 					for(int l = 0; l <= degree - k; l++)
 					{
-						xDist.setAtIndex(x, y, val);
+						//TODO
+						xDist.setAtIndex(x, y, u.getElement(i));
 						yDist.setAtIndex(x, y, val);
 						cc++;
 					}
