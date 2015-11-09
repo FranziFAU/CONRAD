@@ -77,9 +77,11 @@ public class MyPhantom extends Grid2D{
 		
 		System.out.println(NumericPointwiseOperators.max(bild));
 		NumericPointwiseOperators.sum(bild);
-		RadonTransform rad = new RadonTransform(179,75,75);
+		RadonTransform rad = new RadonTransform(179,1.0f,75);
 		rad.createSinogramm(bild);
 		rad.show();
+		FilteredBP fbp = new FilteredBP(bild);
+		fbp.filteredBackProjection(rad, 1.0f);
 		
 	}	
 	

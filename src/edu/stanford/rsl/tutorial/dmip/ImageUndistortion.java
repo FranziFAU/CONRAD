@@ -181,10 +181,10 @@ public class ImageUndistortion{
 			for(int j = 0; j < nx; j++)
 			{
 				//TODO: sample the distorted and undistorted grid points at the lattice points
-				Xu2.setElementValue(j, i, X.getAtIndex((int)((i+1)*fy),(int)((i+1)*fx)));
-				Yu2.setElementValue(j, i, Y.getAtIndex((int)((i+1)*fy),(int)((i+1)*fx)));
-				Xd2.setElementValue(j, i, Xd.getAtIndex((int)((i+1)*fy),(int)((i+1)*fx)));
-				Yd2.setElementValue(j, i, Yd.getAtIndex((int)((i+1)*fy),(int)((i+1)*fx)));
+				Xu2.setElementValue(j,i , X.getAtIndex((int)((j+1)*fx),(int)((i+1)*fy)));
+				Yu2.setElementValue(j, i, Y.getAtIndex((int)((j+1)*fx),(int)((i+1)*fy)));
+				Xd2.setElementValue(j, i, Xd.getAtIndex((int)((j+1)*fx),(int)((i+1)*fy)));
+				Yd2.setElementValue(j, i, Yd.getAtIndex((int)((j+1)*fx),(int)((i+1)*fy)));
 			}
 		}
 		

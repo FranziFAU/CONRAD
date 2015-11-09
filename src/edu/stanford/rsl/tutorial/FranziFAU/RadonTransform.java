@@ -15,21 +15,22 @@ import edu.stanford.rsl.conrad.numerics.SimpleVector;
 
 public class RadonTransform extends Grid2D{	
 	
-	protected int spacing;
+	protected float spacing;
 	protected int pixel;
 	protected double pixelWidth;
 	protected double angleWidthR;
 	protected int projections;
 	
-	public RadonTransform(int numberProjections,int detectorSpacing, int numberPixel){
+	public RadonTransform(int numberProjections,float detectorSpacing, int numberPixel){
 		// Resultierende Bild
 		super(numberPixel,numberProjections);
 		//Detektorgroessen
-		spacing = detectorSpacing;
+		spacing = detectorSpacing*numberPixel;
 		pixel = numberPixel;
-		pixelWidth = ((float)detectorSpacing / numberPixel);
+		pixelWidth = ((float)detectorSpacing );
 		angleWidthR = (Math.PI / numberProjections);	
 		projections = numberProjections;
+		
 	}
 	
 	
