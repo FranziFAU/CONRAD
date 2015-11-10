@@ -15,7 +15,7 @@ import edu.stanford.rsl.conrad.numerics.SimpleVector;
 
 public class RadonTransform extends Grid2D{	
 	
-	protected float spacing;
+	protected float detectorSize;
 	protected int pixel;
 	protected double pixelWidth;
 	protected double angleWidthR;
@@ -24,13 +24,15 @@ public class RadonTransform extends Grid2D{
 	public RadonTransform(int numberProjections,float detectorSpacing, int numberPixel){
 		// Resultierende Bild
 		super(numberPixel,numberProjections);
+		
 		//Detektorgroessen
-		spacing = detectorSpacing*numberPixel;
+		detectorSize = detectorSpacing*numberPixel;
 		pixel = numberPixel;
-		pixelWidth = ((float)detectorSpacing );
+		pixelWidth = ((float)detectorSpacing );		
 		angleWidthR = (Math.PI / numberProjections);	
 		projections = numberProjections;
-		
+		this.setSpacing(detectorSpacing,angleWidthR);
+		this.setOrigin(-detectorSize/2,0);
 	}
 	
 	
@@ -48,7 +50,7 @@ public class RadonTransform extends Grid2D{
 			for(int x = 0; x < pixel; x++){
 				// Projektorlinien bestimmen
 				double angle = angleWidthR * y;
-				double s = -spacing/2 + x*pixelWidth;
+				double s = -detectorSize/2 + x*pixelWidth;
 				double cos = Math.cos(angle);
 				double sin = Math.sin(angle);
 				
@@ -58,11 +60,9 @@ public class RadonTransform extends Grid2D{
 				StraightLine line = new StraightLine(p1,p2);													
 				
 				//Schnittpunkte von Box und Gerade berechnen
-				if (y==90){System.out.println("");}					
-					ArrayList<PointND> crossingPoints = imageBox.intersect(line);
-								
-
-					
+									
+				ArrayList<PointND> crossingPoints = imageBox.intersect(line);
+	
 				
 				if(crossingPoints.size() == 2){
 						PointND c1 = crossingPoints.get(0);						
