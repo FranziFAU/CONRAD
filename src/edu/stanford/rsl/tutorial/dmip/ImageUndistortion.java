@@ -100,9 +100,9 @@ public class ImageUndistortion{
 		// NumericPointwiseOperators.subtractBy(R, (float) (maxR * 0.5)):
 		// 		shifting the positive range to half positive/half negative range
 		Grid2D R = new Grid2D(imSize, imSize);
-		float a = 3;
-		float b = 9; 
-		float d = 12;
+		float a = 3*2;
+		float b = 9*2; 
+		float d = 12*2;
 		
 		int half = imSize / 2;
 		
@@ -181,10 +181,10 @@ public class ImageUndistortion{
 			for(int j = 0; j < nx; j++)
 			{
 				//TODO: sample the distorted and undistorted grid points at the lattice points
-				Xu2.setElementValue(j,i , X.getAtIndex((int)((j+1)*fx),(int)((i+1)*fy)));
-				Yu2.setElementValue(j, i, Y.getAtIndex((int)((j+1)*fx),(int)((i+1)*fy)));
-				Xd2.setElementValue(j, i, Xd.getAtIndex((int)((j+1)*fx),(int)((i+1)*fy)));
-				Yd2.setElementValue(j, i, Yd.getAtIndex((int)((j+1)*fx),(int)((i+1)*fy)));
+				Xu2.setElementValue(j,i , X.getAtIndex((int)((i+1)*fy),(int)((j+1)*fx)));
+				Yu2.setElementValue(j, i, Y.getAtIndex((int)((i+1)*fy),(int)((j+1)*fx)));
+				Xd2.setElementValue(j, i, Xd.getAtIndex((int)((i+1)*fy),(int)((j+1)*fx)));
+				Yd2.setElementValue(j, i, Yd.getAtIndex((int)((i+1)*fy),(int)((j+1)*fx)));
 			}
 		}
 		
@@ -198,8 +198,8 @@ public class ImageUndistortion{
 		
 		// Compute the distorted points:
 		// TODO XD2 = XU2 + (XU2 - XD2)
-		Xd2.multipliedBy(-1.0);
-		Yd2.multipliedBy(-1.0);
+		Xd2.multipliedBy(-1);
+		Yd2.multipliedBy(-1);
 		Xd2.add(Xu2,Xu2);
 		Yd2.add(Yu2,Yu2);
 			

@@ -17,8 +17,7 @@ public class MyPhantom extends Grid2D{
 		super(width,height);
 		
 		this.setSpacing(d,e);
-		this.setOrigin( - (width*d/2), - (height*e/2));
-		
+		this.setOrigin( -(width*d/2), -(height*e/2));		
 		
 		int midw = width / 2;
 		int midh = height / 2;
@@ -54,8 +53,7 @@ public class MyPhantom extends Grid2D{
 					this.setAtIndex(j, i, 0.75f);
 				}
 			}
-		}
-		
+		}		
 		
 	}
 
@@ -63,7 +61,7 @@ public class MyPhantom extends Grid2D{
 	
  	public static void main(String[] args) {
 		new ImageJ();
-		MyPhantom bild = new MyPhantom(200,200,1.0,1.0);
+		MyPhantom bild = new MyPhantom(150,150,1.0,1.0);
 		bild.show();
 		String filenameShepp = "/home/cip/medtech2011/ef58ozyd/Shepp-Logan Phantom.tif";
 		Grid3D sheppLoganVolume = ImageUtil.wrapImagePlus(IJ.openImage(filenameShepp));
@@ -77,7 +75,7 @@ public class MyPhantom extends Grid2D{
 		
 		System.out.println(NumericPointwiseOperators.max(bild));
 		NumericPointwiseOperators.sum(bild);
-		RadonTransform rad = new RadonTransform(379,1.0f,400);
+		RadonTransform rad = new RadonTransform(371,1.0f,400);
 		rad.createSinogramm(bild);
 		rad.show("Sinogramm");
 		FilteredBP fbp = new FilteredBP(bild);
