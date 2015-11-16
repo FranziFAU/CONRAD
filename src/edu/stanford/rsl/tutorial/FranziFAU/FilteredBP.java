@@ -15,14 +15,19 @@ public class FilteredBP extends Grid2D {
 	
 	}
 	
-	public Grid2D filteredBackProjection(Grid2D sinogramm, float detectorSpacing, int numberProjections){
+	public Grid2D filteredBackProjection(Grid2D sinogramm, float detectorSpacing, int numberProjections, boolean ramLak, int filterWidth){
 		
 		Grid2D filteredSinogramm = new Grid2D(sinogramm);
 		//Sinogramm zeilenweise auslesen
 		for(int i = 0; i < sinogramm.getHeight(); i++){
 			Grid1DComplex line_c = new Grid1DComplex(filteredSinogramm.getSubGrid(i));			
 			//Linie filtern
-			filtering(line_c,detectorSpacing);
+			if(ramLak){
+				filteringRamLak(line_c, detectorSpacing,filterWidth);
+			}else{
+				filtering(line_c,detectorSpacing);
+			}
+				
 			//gefilterte Linie speichern
 			for(int j = 0; j < filteredSinogramm.getWidth(); j++){
 				filteredSinogramm.setAtIndex(j, i, line_c.getRealAtIndex(j));
@@ -36,6 +41,43 @@ public class FilteredBP extends Grid2D {
  		
 	}
 	
+	protected Grid1DComplex filteringRamLak (Grid1DComplex line, float spacing, int filterWidth){
+		
+		line.transformForward();	
+		
+		// Berechung von frequency spacing
+		int k = line.getSize()[0];		
+	
+		float deltaf = 1/(spacing*k);
+		
+		// Filter aufstellen
+				
+		float j = 0;
+		for(int i = 0; i < k; i++){
+			
+			if(i > filterWidth || i  < (k-filterWidth)){
+				line.setRealAtIndex(i, 0.f);
+				line.setImagAtIndex(i, 0.f);
+			}
+			
+			if(i < (k/2)){
+				line.setRealAtIndex(i, line.getRealAtIndex(i)*j);
+				line.setImagAtIndex(i, line.getImagAtIndex(i)*j);
+				j += deltaf;
+				
+			}else {
+				line.setRealAtIndex(i, line.getRealAtIndex(i)*j);
+				line.setImagAtIndex(i, line.getImagAtIndex(i)*j);
+				j -= deltaf;
+			}
+			
+		}	
+		
+		line.transformInverse();
+	
+		return line;
+	}
+	
 	protected Grid1DComplex filtering(Grid1DComplex line, float spacing){
 		//FFT der Detektorlinie		
 		
@@ -44,6 +86,7 @@ public class FilteredBP extends Grid2D {
 		
 		// Berechung von frequency spacing
 		int k = line.getSize()[0];		
+	
 		float deltaf = 1/(spacing*k);
 		
 		// Filter aufstellen

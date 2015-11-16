@@ -43,18 +43,6 @@ public class RadonTransform extends Grid2D{
 		imageBox.setLowerCorner(new PointND(image.getOrigin()[0],-image.getOrigin()[1],-1.0));
 		imageBox.setUpperCorner(new PointND(-image.getOrigin()[0],image.getOrigin()[1],1.0));
 		
-		for(int i = 142; i < image.getHeight(); i++){
-			for(int j = 0; j < image.getWidth(); j++){
-				if(i == 0 || i == (image.getHeight()-1) || j == 0 || j == (image.getWidth()-1)){
-					double[] index = image.indexToPhysical(j, i);
-					PointND check = new PointND(index[0],index[1], 1);
-					if(!(imageBox.isMember(check))){
-						System.out.println("(" + i + "/" + j + ")" + "("+ index[0]+ "/" +index[1]+ ")");
-					}
-				}
-			}
-		}
-
 		
 		//ueber die einzelnen Projektionen laufen
 		for(int indexProjections = 0; indexProjections < projections; indexProjections++){
@@ -74,13 +62,18 @@ public class RadonTransform extends Grid2D{
 				PointND p2 = new PointND(cos*s - sin, sin*s + cos, 0.0d);
 				
 				
-				StraightLine line = new StraightLine(p1,p2);	
-				
+				StraightLine line = new StraightLine(p1,p2);				
 				
 				
 				//Schnittpunkte von Box und Gerade berechnen
 									
 				ArrayList<PointND> crossingPoints = imageBox.intersect(line);
+				
+				if(crossingPoints.size() == 0){
+					p2 = new PointND(cos*s + sin, sin*s - cos, 0.0d);
+					line = new StraightLine(p1,p2);
+					crossingPoints = imageBox.intersect(line);
+				}
 
 				if(crossingPoints.size() == 2){
 						PointND c1 = crossingPoints.get(0);						

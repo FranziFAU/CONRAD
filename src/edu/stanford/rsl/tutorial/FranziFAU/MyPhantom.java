@@ -1,5 +1,7 @@
 package edu.stanford.rsl.tutorial.FranziFAU;
 
+import com.sun.org.apache.xalan.internal.xsltc.runtime.Operators;
+
 import ij.IJ;
 import ij.ImageJ;
 import edu.stanford.rsl.conrad.data.numeric.Grid2D;
@@ -63,25 +65,31 @@ public class MyPhantom extends Grid2D{
 		new ImageJ();
 		MyPhantom bild = new MyPhantom(150,150,1.0,1.0);
 		bild.show();
-		String filenameShepp = "/home/cip/medtech2011/ef58ozyd/Shepp-Logan Phantom.tif";
+		String filenameShepp = "C:/Users/Franziska/Desktop/Shepp_logan.png";
 		Grid3D sheppLoganVolume = ImageUtil.wrapImagePlus(IJ.openImage(filenameShepp));
 		ImageGridBuffer a = new ImageGridBuffer();
 		a.set(sheppLoganVolume);
 		Grid2D b = a.get(0);
-	//	b.show();
+		//b.show();
+		b.setOrigin(-b.getWidth()/2, -b.getHeight()/2);
 		
-		
-		
-		
-		System.out.println(NumericPointwiseOperators.max(bild));
-		NumericPointwiseOperators.sum(bild);
-		RadonTransform rad = new RadonTransform(371,1.0f,400);
+		int numberProjections = 379;
+		float detectorSpacing = 1.0f;
+		int numberPixel = 300;
+
+		RadonTransform rad = new RadonTransform(numberProjections,detectorSpacing,numberPixel);
 		rad.createSinogramm(bild);
 		rad.show("Sinogramm");
 		FilteredBP fbp = new FilteredBP(bild);
-		fbp.filteredBackProjection(rad, 1.0f,379);
+		fbp.filteredBackProjection(rad, detectorSpacing,numberProjections,false,0);
 		fbp.show("Reconstruction");
 		
+		FilteredBP fbpRL = new FilteredBP(bild);
+		fbpRL.filteredBackProjection(rad,detectorSpacing,numberProjections,true,1000);
+		fbpRL.show("Reconstruction Ram-Lak");
+		
+		Grid2D differenceImage = (Grid2D)NumericPointwiseOperators.subtractedBy(fbp, fbpRL);
+		differenceImage.show("Unterschiede");
 	}	
 	
 }
