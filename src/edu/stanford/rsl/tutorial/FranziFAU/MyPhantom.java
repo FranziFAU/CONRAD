@@ -65,13 +65,13 @@ public class MyPhantom extends Grid2D{
 		new ImageJ();
 		MyPhantom bild = new MyPhantom(150,150,1.0,1.0);
 		bild.show();
-		String filenameShepp = "C:/Users/Franziska/Desktop/Shepp_logan.png";
-		Grid3D sheppLoganVolume = ImageUtil.wrapImagePlus(IJ.openImage(filenameShepp));
-		ImageGridBuffer a = new ImageGridBuffer();
-		a.set(sheppLoganVolume);
-		Grid2D b = a.get(0);
+		//String filenameShepp = "C:/Users/Franziska/Desktop/Shepp_logan.png";
+		//Grid3D sheppLoganVolume = ImageUtil.wrapImagePlus(IJ.openImage(filenameShepp));
+		//ImageGridBuffer a = new ImageGridBuffer();
+		//a.set(sheppLoganVolume);
+		//Grid2D b = a.get(0);
 		//b.show();
-		b.setOrigin(-b.getWidth()/2, -b.getHeight()/2);
+	//	b.setOrigin(-b.getWidth()/2, -b.getHeight()/2);
 		
 		int numberProjections = 379;
 		float detectorSpacing = 1.0f;
@@ -81,11 +81,11 @@ public class MyPhantom extends Grid2D{
 		rad.createSinogramm(bild);
 		rad.show("Sinogramm");
 		FilteredBP fbp = new FilteredBP(bild);
-		fbp.filteredBackProjection(rad, detectorSpacing,numberProjections,false,0);
+		fbp.filteredBackProjection(rad, detectorSpacing,numberProjections,false);
 		fbp.show("Reconstruction");
 		
 		FilteredBP fbpRL = new FilteredBP(bild);
-		fbpRL.filteredBackProjection(rad,detectorSpacing,numberProjections,true,1000);
+		fbpRL.filteredBackProjection(rad,detectorSpacing,numberProjections,true);
 		fbpRL.show("Reconstruction Ram-Lak");
 		
 		Grid2D differenceImage = (Grid2D)NumericPointwiseOperators.subtractedBy(fbp, fbpRL);

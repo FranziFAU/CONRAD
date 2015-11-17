@@ -3,6 +3,7 @@ package edu.stanford.rsl.tutorial.FranziFAU;
 import edu.stanford.rsl.conrad.data.numeric.Grid2D;
 import edu.stanford.rsl.conrad.data.numeric.Grid1DComplex;
 import edu.stanford.rsl.conrad.data.numeric.InterpolationOperators;
+import edu.stanford.rsl.conrad.data.numeric.NumericPointwiseOperators;
 
 public class FilteredBP extends Grid2D {
 	
@@ -15,15 +16,38 @@ public class FilteredBP extends Grid2D {
 	
 	}
 	
-	public Grid2D filteredBackProjection(Grid2D sinogramm, float detectorSpacing, int numberProjections, boolean ramLak, int filterWidth){
+	public Grid2D filteredBackProjection(Grid2D sinogramm, float detectorSpacing, int numberProjections, boolean ramLak){
 		
 		Grid2D filteredSinogramm = new Grid2D(sinogramm);
+		
+		Grid1DComplex filter = new Grid1DComplex(filteredSinogramm.getSubGrid(0));
+		
+		for(int i = 0; i < filter.getSize()[0]/2; i ++){
+			float val;
+			if(i == 0){
+				val = 1.f/4.f;
+			}else if((i%2) == 0){
+				val = 0.f;
+			}else{
+				val = (-(1.f/(float)(Math.pow(i/detectorSpacing, 2)*Math.pow(Math.PI, 2))));
+			}
+			filter.setRealAtIndex((filter.getSize()[0]/2)+i, val);
+			filter.setRealAtIndex((filter.getSize()[0]/2)-i, val);
+			filter.setImagAtIndex((filter.getSize()[0]/2)+i, 0.f);
+			filter.setImagAtIndex((filter.getSize()[0]/2)-i, 0.f);
+		}
+		filter.getRealSubGrid(0,filter.getSize()[0]).show("Filter");		
+		filter.transformForward();
+		filter.getRealSubGrid(0,filter.getSize()[0]).show("Filter Fourier");
+		
+		
+		
 		//Sinogramm zeilenweise auslesen
 		for(int i = 0; i < sinogramm.getHeight(); i++){
 			Grid1DComplex line_c = new Grid1DComplex(filteredSinogramm.getSubGrid(i));			
 			//Linie filtern
-			if(ramLak){
-				filteringRamLak(line_c, detectorSpacing,filterWidth);
+			if(ramLak){				
+				filteringRamLak(line_c, detectorSpacing,filter);
 			}else{
 				filtering(line_c,detectorSpacing);
 			}
@@ -41,40 +65,19 @@ public class FilteredBP extends Grid2D {
  		
 	}
 	
-	protected Grid1DComplex filteringRamLak (Grid1DComplex line, float spacing, int filterWidth){
+	protected Grid1DComplex filteringRamLak (Grid1DComplex line, float spacing, Grid1DComplex filter){
 		
-		line.transformForward();	
+
+		line.transformForward();
 		
-		// Berechung von frequency spacing
-		int k = line.getSize()[0];		
-	
-		float deltaf = 1/(spacing*k);
+		for(int index = 0; index < line.getSize()[0]; index++){
+		//	float real = 
+		//	line.setRealAtIndex
+		}
 		
-		// Filter aufstellen
-				
-		float j = 0;
-		for(int i = 0; i < k; i++){
 			
-			if(i > filterWidth || i  < (k-filterWidth)){
-				line.setRealAtIndex(i, 0.f);
-				line.setImagAtIndex(i, 0.f);
-			}
-			
-			if(i < (k/2)){
-				line.setRealAtIndex(i, line.getRealAtIndex(i)*j);
-				line.setImagAtIndex(i, line.getImagAtIndex(i)*j);
-				j += deltaf;
-				
-			}else {
-				line.setRealAtIndex(i, line.getRealAtIndex(i)*j);
-				line.setImagAtIndex(i, line.getImagAtIndex(i)*j);
-				j -= deltaf;
-			}
-			
-		}	
-		
 		line.transformInverse();
-	
+		
 		return line;
 	}
 	
