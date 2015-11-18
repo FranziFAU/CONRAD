@@ -18,79 +18,81 @@ public class FilteredBP extends Grid2D {
 	
 	public Grid2D filteredBackProjection(Grid2D sinogramm, float detectorSpacing, int numberProjections, boolean ramLak){
 		
+		// gefiltertes Sinogramm 
 		Grid2D filteredSinogramm = new Grid2D(sinogramm);
 		
+		//Filter fuer Ram-Lak
 		Grid1DComplex filter = new Grid1DComplex(filteredSinogramm.getSubGrid(0));
 		
-		for(int i = 0; i < filter.getSize()[0]/2; i ++){
+		for(int n = 0; n < filter.getSize()[0]; n ++){
 			float val;
-			if(i == 0){
-				val = 1.f/4.f;
-			}else if((i%2) == 0){
+			if(n == 0){
+				val = (1.f/4.f);
+			}else if((n%2) == 0){
 				val = 0.f;
 			}else{
-				val = (-(1.f/(float)(Math.pow(i/detectorSpacing, 2)*Math.pow(Math.PI, 2))));
+				val = (-(1.f/(float)(Math.pow(n/detectorSpacing, 2)*Math.pow(Math.PI, 2))));
 			}
-			filter.setRealAtIndex((filter.getSize()[0]/2)+i, val);
-			filter.setRealAtIndex((filter.getSize()[0]/2)-i, val);
-			filter.setImagAtIndex((filter.getSize()[0]/2)+i, 0.f);
-			filter.setImagAtIndex((filter.getSize()[0]/2)-i, 0.f);
+			filter.setRealAtIndex(n, val);
+			//filter.setRealAtIndex((filter.getSize()[0]/2) - n, val);
+			filter.setImagAtIndex(n, 0.f);
+			//filter.setImagAtIndex((filter.getSize()[0]/2) - n, 0.f);
 		}
-		filter.getRealSubGrid(0,filter.getSize()[0]).show("Filter");		
-		filter.transformForward();
-		filter.getRealSubGrid(0,filter.getSize()[0]).show("Filter Fourier");
-		
-		
+			
+		filter.transformForward();	
+		filter.getRealSubGrid(0,filter.getSize()[0]).show();		
 		
 		//Sinogramm zeilenweise auslesen
-		for(int i = 0; i < sinogramm.getHeight(); i++){
-			Grid1DComplex line_c = new Grid1DComplex(filteredSinogramm.getSubGrid(i));			
+		for(int s = 0; s < sinogramm.getHeight(); s++){
+			Grid1DComplex line_c = new Grid1DComplex(filteredSinogramm.getSubGrid(s));			
 			//Linie filtern
 			if(ramLak){				
-				filteringRamLak(line_c, detectorSpacing,filter);
+				filteringRamLak(line_c,filter);
 			}else{
 				filtering(line_c,detectorSpacing);
 			}
 				
 			//gefilterte Linie speichern
-			for(int j = 0; j < filteredSinogramm.getWidth(); j++){
-				filteredSinogramm.setAtIndex(j, i, line_c.getRealAtIndex(j));
+			for(int indexWidth = 0; indexWidth < filteredSinogramm.getWidth(); indexWidth++){
+				filteredSinogramm.setAtIndex(indexWidth, s, line_c.getRealAtIndex(indexWidth));
 			}		
 		}			
-		filteredSinogramm.show();
-		
+//		filteredSinogramm.show();
+		//Rueckprojektion
 		backProjection(filteredSinogramm,numberProjections);
 		
 		return this;
  		
 	}
 	
-	protected Grid1DComplex filteringRamLak (Grid1DComplex line, float spacing, Grid1DComplex filter){
-		
-
+	protected Grid1DComplex filteringRamLak (Grid1DComplex line, Grid1DComplex filter){		
+		//FFT der Detektorlinie		
 		line.transformForward();
 		
+		// Linie mit Filter Multiplizieren		
 		for(int index = 0; index < line.getSize()[0]; index++){
-		//	float real = 
-		//	line.setRealAtIndex
+			float real = (filter.getRealAtIndex(index)*line.getRealAtIndex(index)) - (filter.getImagAtIndex(index)*line.getImagAtIndex(index));
+			line.setRealAtIndex(index,real);
+			float imag = (filter.getRealAtIndex(index)*line.getImagAtIndex(index)) + (filter.getImagAtIndex(index)*line.getRealAtIndex(index));			
+			line.setImagAtIndex(index, imag);
 		}
-		
-			
+
+		// IFT der Detektorlinie	
 		line.transformInverse();
 		
 		return line;
 	}
 	
 	protected Grid1DComplex filtering(Grid1DComplex line, float spacing){
+		
+		
 		//FFT der Detektorlinie		
-		
-		
 		line.transformForward();	
 		
 		// Berechung von frequency spacing
 		int k = line.getSize()[0];		
 	
-		float deltaf = 1/(spacing*k);
+		float deltaf = 1.f/(spacing*k);
 		
 		// Filter aufstellen
 				
@@ -110,6 +112,7 @@ public class FilteredBP extends Grid2D {
 			
 		}	
 		
+		// IFT der Detektorlinie
 		line.transformInverse();
 	
 		return line;

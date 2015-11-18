@@ -131,10 +131,11 @@ public class DefectPixelInterpolation {
 				//Eq. 15
 				//FHat = N*(G(s,t)/W(0,0))
 				//TODO compute FHatNext, use Complex class
-				//TODO
-				//TODO
-				//TODO
-				Complex res = new Complex();//HINT
+				Complex Gval = new Complex(G.getRealAtIndex(s1, t1), G.getImagAtIndex(s1,t1));
+				Complex Wval = new Complex(W.getRealAtIndex(0,0), W.getImagAtIndex(0,0));
+				//Wert aus vorheriger Iteration zu den anderen aufaddieren!
+				Complex FhatNextVal = new Complex(FHatNext.getRealAtIndex(s1, t1),FHatNext.getImagAtIndex(s1, t1));						
+				Complex res = FhatNextVal.add(Gval.mul(dim[0]*dim[1]).div(Wval));
 				FHatNext.setRealAtIndex(s1, t1, (float) res.getReal());
 				FHatNext.setImagAtIndex(s1, t1, (float) res.getImag());
 			}
@@ -143,12 +144,18 @@ public class DefectPixelInterpolation {
 				//General case
 				//Compute FHatNext for the general case Eq.9
 				//TODO
-				//TODO
-				//TODO
-				//TODO
-				//TODO
-				Complex res_s1t1 = new Complex();//HINT
-				Complex res_s2t2 = new Complex();//HINT
+				Complex Gval = new Complex(G.getRealAtIndex(s1, t1),G.getImagAtIndex(0, 0));
+				Complex Wval_00 = new Complex(W.getRealAtIndex(0, 0),W.getImagAtIndex(0,0));
+				Complex Wval_twice = new Complex(W.getRealAtIndex(twice_s1, twice_t1),W.getImagAtIndex(twice_s1, twice_t1));
+				Complex FhatNextVal_s1t1 = new Complex(FHatNext.getRealAtIndex(s1, t1),FHatNext.getImagAtIndex(s1, t1));	
+				Complex FhatNextVal_s2t2 = new Complex(FHatNext.getRealAtIndex(s2, t2),FHatNext.getImagAtIndex(s2, t2));	
+				
+				Complex val = ((Gval.mul(Wval_00.getConjugate())).sub(Gval.getConjugate().mul(Wval_twice))).mul(dim[0]*dim[1]);
+				val = val.div(Wval_00.getMagn()*Wval_00.getMagn() - Wval_twice.getMagn()*Wval_twice.getMagn());
+				
+				Complex res_s1t1 = FhatNextVal_s1t1.add(val);
+				Complex res_s2t2 = FhatNextVal_s2t2.add(val.getConjugate());
+				
 				FHatNext.setRealAtIndex(s1, t1, (float) res_s1t1.getReal());
 				FHatNext.setImagAtIndex(s1, t1, (float) res_s1t1.getImag());
 				FHatNext.setRealAtIndex(s2, t2, (float) res_s2t2.getReal());
@@ -198,11 +205,16 @@ public class DefectPixelInterpolation {
 		FHat.transformInverse();
 		
 		//Fill in the defect mask pixels with the current estimation and remove the zero padding
+	
+		//TODO
 		Grid2D result = new Grid2D(image);
-		//TODO
-		//TODO
-		//TODO
-		//TODO
+		for(int i = 0; i < result.getWidth(); i++){
+			for(int j = 0; j < result.getHeight();j++){
+				if(mask.getAtIndex(i, j) == 0){
+					result.setAtIndex(i, j, FHat.getRealAtIndex(i,j));
+				}
+			}
+		}
 		
 		return result;
 	}
