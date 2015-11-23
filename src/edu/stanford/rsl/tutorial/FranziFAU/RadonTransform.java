@@ -98,7 +98,7 @@ public class RadonTransform extends Grid2D{
 																					
 							double [] indexImage = image.physicalToIndex(indexX, indexY);			
 		
-							val += InterpolationOperators.interpolateLinear(image,indexImage[0] , indexImage[1]);		
+							val += InterpolationOperators.interpolateLinear(image, indexImage[0], indexImage[1]);		
 
 						}
 						

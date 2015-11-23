@@ -1,5 +1,6 @@
 package edu.stanford.rsl.tutorial.FranziFAU;
 
+import edu.stanford.rsl.conrad.data.generic.datatypes.Complex;
 import edu.stanford.rsl.conrad.data.numeric.Grid2D;
 import edu.stanford.rsl.conrad.data.numeric.Grid1DComplex;
 import edu.stanford.rsl.conrad.data.numeric.InterpolationOperators;
@@ -24,7 +25,7 @@ public class FilteredBP extends Grid2D {
 		//Filter fuer Ram-Lak
 		Grid1DComplex filter = new Grid1DComplex(filteredSinogramm.getSubGrid(0));
 		
-		for(int n = 0; n < filter.getSize()[0]; n ++){
+		for(int n = 0; n < filter.getSize()[0]; n++){
 			float val;
 			if(n == 0){
 				val = (1.f/4.f);
@@ -46,7 +47,7 @@ public class FilteredBP extends Grid2D {
 		for(int s = 0; s < sinogramm.getHeight(); s++){
 			Grid1DComplex line_c = new Grid1DComplex(filteredSinogramm.getSubGrid(s));			
 			//Linie filtern
-			if(ramLak){				
+			if(ramLak){
 				filteringRamLak(line_c,filter);
 			}else{
 				filtering(line_c,detectorSpacing);
@@ -57,7 +58,12 @@ public class FilteredBP extends Grid2D {
 				filteredSinogramm.setAtIndex(indexWidth, s, line_c.getRealAtIndex(indexWidth));
 			}		
 		}			
-//		filteredSinogramm.show();
+		if(ramLak){
+			filteredSinogramm.show("RamLak");
+		}else{
+			filteredSinogramm.show();
+		}
+		
 		//Rueckprojektion
 		backProjection(filteredSinogramm,numberProjections);
 		
@@ -71,10 +77,13 @@ public class FilteredBP extends Grid2D {
 		
 		// Linie mit Filter Multiplizieren		
 		for(int index = 0; index < line.getSize()[0]; index++){
-			float real = (filter.getRealAtIndex(index)*line.getRealAtIndex(index)) - (filter.getImagAtIndex(index)*line.getImagAtIndex(index));
-			line.setRealAtIndex(index,real);
-			float imag = (filter.getRealAtIndex(index)*line.getImagAtIndex(index)) + (filter.getImagAtIndex(index)*line.getRealAtIndex(index));			
-			line.setImagAtIndex(index, imag);
+			
+			Complex lineVal = new Complex(line.getRealAtIndex(index),line.getImagAtIndex(index));
+			Complex filterVal = new Complex(filter.getRealAtIndex(index),filter.getImagAtIndex(index));
+			
+			Complex result = lineVal.mul(filterVal);
+			line.setRealAtIndex(index, (float)result.getReal());
+			line.setImagAtIndex(index, (float)result.getImag());
 		}
 
 		// IFT der Detektorlinie	
@@ -95,6 +104,7 @@ public class FilteredBP extends Grid2D {
 		float deltaf = 1.f/(spacing*k);
 		
 		// Filter aufstellen
+
 				
 		float j = 0;
 		for(int i = 0; i < k; i++){
@@ -105,6 +115,7 @@ public class FilteredBP extends Grid2D {
 				j += deltaf;
 				
 			}else {
+
 				line.setRealAtIndex(i, line.getRealAtIndex(i)*j);
 				line.setImagAtIndex(i, line.getImagAtIndex(i)*j);
 				j -= deltaf;
