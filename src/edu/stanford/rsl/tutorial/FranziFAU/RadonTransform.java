@@ -43,7 +43,6 @@ public class RadonTransform extends Grid2D{
 		imageBox.setLowerCorner(new PointND(phantom.getOrigin()[0],-phantom.getOrigin()[1],-1.0));
 		imageBox.setUpperCorner(new PointND(-phantom.getOrigin()[0],phantom.getOrigin()[1],1.0));
 		
-		
 		//ueber die einzelnen Projektionen laufen
 		for(int indexProjections = 0; indexProjections < projections; indexProjections++){
 			// Entlang des Detektors laufen

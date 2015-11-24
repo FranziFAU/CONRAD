@@ -65,9 +65,9 @@ public class FilteredBP extends Grid2D {
 			}		
 		}			
 		if(ramLak){
-			filteredSinogramm.show("RamLak");
+//			filteredSinogramm.show("RamLak");
 		}else{
-			filteredSinogramm.show("Ramp Filter");
+//			filteredSinogramm.show("Ramp Filter");
 		}
 		
 		//Rueckprojektion
