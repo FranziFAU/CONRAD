@@ -36,12 +36,12 @@ public class RadonTransform extends Grid2D{
 	}
 		
 	
-	public Grid2D createSinogramm(Grid2D image) {
+	public Grid2D createSinogramm(Grid2D phantom) {
 		
 		// Bouding Box erstellen		
-		Box imageBox = new Box(image.getWidth()*image.getSpacing()[0],image.getHeight()*image.getSpacing()[1],2.0d);
-		imageBox.setLowerCorner(new PointND(image.getOrigin()[0],-image.getOrigin()[1],-1.0));
-		imageBox.setUpperCorner(new PointND(-image.getOrigin()[0],image.getOrigin()[1],1.0));
+		Box imageBox = new Box(phantom.getWidth()*phantom.getSpacing()[0],phantom.getHeight()*phantom.getSpacing()[1],2.0d);
+		imageBox.setLowerCorner(new PointND(phantom.getOrigin()[0],-phantom.getOrigin()[1],-1.0));
+		imageBox.setUpperCorner(new PointND(-phantom.getOrigin()[0],phantom.getOrigin()[1],1.0));
 		
 		
 		//ueber die einzelnen Projektionen laufen
@@ -58,7 +58,7 @@ public class RadonTransform extends Grid2D{
 				double sin = Math.sin(angle);
 								
 								
-				PointND p1 = new PointND(cos*s,sin*s,0.0d);
+				PointND p1 = new PointND(cos*s, sin*s,0.0d);
 				PointND p2 = new PointND(cos*s - sin, sin*s + cos, 0.0d);
 				
 				
@@ -96,9 +96,9 @@ public class RadonTransform extends Grid2D{
 							double indexX = c1.get(0) + k*(richtung.get(0));
 							double indexY = c1.get(1) + k*(richtung.get(1));							
 																					
-							double [] indexImage = image.physicalToIndex(indexX, indexY);			
+							double [] indexImage = phantom.physicalToIndex(indexX, indexY);			
 		
-							val += InterpolationOperators.interpolateLinear(image, indexImage[0], indexImage[1]);		
+							val += InterpolationOperators.interpolateLinear(phantom, indexImage[0], indexImage[1]);		
 
 						}
 						

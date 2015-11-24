@@ -63,8 +63,8 @@ public class MyPhantom extends Grid2D{
 	
  	public static void main(String[] args) {
 		new ImageJ();
-		MyPhantom bild = new MyPhantom(150,150,1.0,1.0);
-//		bild.show();
+		MyPhantom bild = new MyPhantom(350,350,1.0,1.0);
+		bild.show("Phantom");
 		//String filenameShepp = "C:/Users/Franziska/Desktop/Shepp_logan.png";
 		//Grid3D sheppLoganVolume = ImageUtil.wrapImagePlus(IJ.openImage(filenameShepp));
 		//ImageGridBuffer a = new ImageGridBuffer();
@@ -75,21 +75,21 @@ public class MyPhantom extends Grid2D{
 		
 		int numberProjections = 379;
 		float detectorSpacing = 1.0f;
-		int numberPixel = 300;
+		int numberPixel = 500;
 
 		RadonTransform rad = new RadonTransform(numberProjections,detectorSpacing,numberPixel);
 		rad.createSinogramm(bild);
-//		rad.show("Sinogramm");
+		rad.show("Sinogramm");
 		FilteredBP fbp = new FilteredBP(bild);
 		fbp.filteredBackProjection(rad, detectorSpacing,numberProjections,false);
-//		fbp.show("Reconstruction");
+		fbp.show("Reconstruction");
 		
 		FilteredBP fbpRL = new FilteredBP(bild);
 		fbpRL.filteredBackProjection(rad,detectorSpacing,numberProjections,true);
 		fbpRL.show("Reconstruction Ram-Lak");
 		
 		Grid2D differenceImage = (Grid2D)NumericPointwiseOperators.subtractedBy(fbp, fbpRL);
-//		differenceImage.show("Unterschiede");
+		differenceImage.show("Unterschiede");
 	}	
 	
 }

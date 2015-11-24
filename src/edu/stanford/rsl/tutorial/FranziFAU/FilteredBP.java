@@ -25,23 +25,29 @@ public class FilteredBP extends Grid2D {
 		//Filter fuer Ram-Lak
 		Grid1DComplex filter = new Grid1DComplex(filteredSinogramm.getSubGrid(0));
 		
-		for(int n = 0; n < filter.getSize()[0]; n++){
+		for(int n = 0; n < filter.getSize()[0]/2; n++){
 			float val;
 			if(n == 0){
-				val = (1.f/4.f);
+				val = (1.f/(4.f*detectorSpacing));
+				filter.setRealAtIndex(n, val);
+				filter.setImagAtIndex(n, 0.f);
 			}else if((n%2) == 0){
 				val = 0.f;
 			}else{
-				val = (-(1.f/(float)(Math.pow(n/detectorSpacing, 2)*Math.pow(Math.PI, 2))));
+				val = (-(1.f/(float)(Math.pow(n*detectorSpacing, 2)*Math.pow(Math.PI, 2))));
 			}
-			filter.setRealAtIndex(n, val);
-			//filter.setRealAtIndex((filter.getSize()[0]/2) - n, val);
-			filter.setImagAtIndex(n, 0.f);
-			//filter.setImagAtIndex((filter.getSize()[0]/2) - n, 0.f);
-		}
 			
+			if(n != 0){
+				filter.setRealAtIndex(n, val);
+				filter.setImagAtIndex(n, 0.f);
+				filter.setRealAtIndex(filter.getSize()[0]-n, val);
+				filter.setImagAtIndex(filter.getSize()[0]-n, 0.f);
+			}
+
+		}
+		
 		filter.transformForward();	
-		filter.getRealSubGrid(0,filter.getSize()[0]).show();		
+			
 		
 		//Sinogramm zeilenweise auslesen
 		for(int s = 0; s < sinogramm.getHeight(); s++){
@@ -61,7 +67,7 @@ public class FilteredBP extends Grid2D {
 		if(ramLak){
 			filteredSinogramm.show("RamLak");
 		}else{
-			filteredSinogramm.show();
+			filteredSinogramm.show("Ramp Filter");
 		}
 		
 		//Rueckprojektion
