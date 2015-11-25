@@ -63,8 +63,8 @@ public class MyPhantom extends Grid2D{
 	
  	public static void main(String[] args) {
 		new ImageJ();
-		MyPhantom bild = new MyPhantom(350,350,1.0,1.0);
-	//	bild.show("Phantom");
+		MyPhantom bild = new MyPhantom(150,150,1.0,1.0);
+		bild.show("Phantom");
 		//String filenameShepp = "C:/Users/Franziska/Desktop/Shepp_logan.png";
 		//Grid3D sheppLoganVolume = ImageUtil.wrapImagePlus(IJ.openImage(filenameShepp));
 		//ImageGridBuffer a = new ImageGridBuffer();
@@ -91,7 +91,7 @@ public class MyPhantom extends Grid2D{
 //		Grid2D differenceImage = (Grid2D)NumericPointwiseOperators.subtractedBy(fbp, fbpRL);
 //		differenceImage.show("Unterschiede");
 		
-		FanBeamReconstruction fanbeam = new FanBeamReconstruction(300,700,389,1.f,700,(float)Math.PI*2);
+		FanBeamReconstruction fanbeam = new FanBeamReconstruction(300,600,301,1.f,650,(float)Math.PI*2);
 		fanbeam.fanBeam(bild);
 	}	
 	

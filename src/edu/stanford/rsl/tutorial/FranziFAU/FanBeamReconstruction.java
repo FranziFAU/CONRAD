@@ -29,7 +29,7 @@ public class FanBeamReconstruction extends Grid2D {
 		super(numberOfPixel,numberProjections);
 
 		detectorSize = detectorSpacing*numberPixel;	
-		openingAngle = detectorSize / dSD;
+		openingAngle = (float)(2.f*Math.atan(((detectorSize/2.d)/dsd)));
 		deltaBeta = projectionAngle / numberProjections;		
 		projections = numberProjections;
 		dSI = dsi;
@@ -47,48 +47,49 @@ public class FanBeamReconstruction extends Grid2D {
 		imageBox.setUpperCorner(new PointND(-phantom.getOrigin()[0],phantom.getOrigin()[1],1.0));
 
 		
-		for(int indexProjection = 0; indexProjection < projections; indexProjection++){
+		for(int indexProjection = 1; indexProjection < projections; indexProjection++){
 			
 			// Source position
 			float Beta = deltaBeta*indexProjection;
 			float sin = (float) Math.sin(Beta + (Math.PI/2));
 			float cos = (float) Math.cos(Beta + (Math.PI/2));
 			
-			PointND source = new PointND(sin*dSI,cos*dSI,0.0);
-			SimpleVector s = source.getAbstractVector();
-			SimpleVector eISO = source.getAbstractVector();
-			eISO.negate();
-			eISO.normalizeL2();
-			eISO.multiplyBy(dSD);
+			PointND sourcePosition = new PointND(sin*dSI,cos*dSI,0.0);
+			SimpleVector source = sourcePosition.getAbstractVector();
 			
 			// Direction of the detector
-			SimpleMatrix A = new SimpleMatrix(2,2);
-			A.setElementValue(0, 0, sin*dSI);
-			A.setElementValue(0, 1, cos*dSI);
+			SimpleVector eD = new SimpleVector(-sourcePosition.get(1), sourcePosition.get(0), 0.0);	
+			eD.normalizeL2();		
+			eD.multiplyBy(detectorSpacing);
 			
-			DecompositionSVD svd = new DecompositionSVD(A);		
-			
-			SimpleVector b = new SimpleVector(0,0);
-			SimpleVector eD2 = SimpleOperators.multiply(svd.inverse(true), b);
-			eD2.normalizeL2();		
-			SimpleVector eD = new SimpleVector(eD2.getElement(0),eD2.getElement(1),0.f);
-			
+			//Direction from source to detector
+			SimpleVector eISO = sourcePosition.getAbstractVector();
+			eISO.negate();
+			eISO.normalizeL2();
+			eISO.multiplyBy(dSD);			
+	
 			for(int indexT = 0; indexT < numberPixel; indexT++){
 				
-				eD.multiplyBy(detectorSpacing);
-				int indexPosition = indexT - ((numberPixel-1)/2);
-				eD.multiplyBy(indexPosition);
+				
+				int indexPosition = indexT - ((numberPixel)/2);
+				SimpleVector eDirection = eD.multipliedBy(indexPosition);
 				//determine current position on the detector
-				SimpleVector result = SimpleOperators.add(s,eISO,eD);				
+				SimpleVector result = SimpleOperators.add(source,eISO,eDirection);				
 				PointND detectorPosition = new PointND(result.getElement(0),result.getElement(1),0.0);
 				
 				// line between source and position on detector
-				StraightLine line = new StraightLine(source,detectorPosition);
+				StraightLine line = new StraightLine(sourcePosition,detectorPosition);
 				
 				// find intersection with bounding box
 				ArrayList<PointND> crossingPoints = imageBox.intersect(line);
+				if(crossingPoints.size()==0){
+					PointND detectorPositionNew = new PointND(-result.getElement(0),-result.getElement(1),0.0);
+					line = new StraightLine(sourcePosition,detectorPositionNew);
+					crossingPoints = imageBox.intersect(line);
+				}
+				
 				if(crossingPoints.size() == 2){
-					System.out.println("cross");
+
 					PointND c1 = crossingPoints.get(0);						
 					PointND c2 = crossingPoints.get(1);					
 
@@ -124,4 +125,17 @@ public class FanBeamReconstruction extends Grid2D {
 		return this;
 	}
 
+	public Grid2D rebinning(){
+		Grid2D sinogramm = new Grid2D(this.getWidth(),this.getHeight());
+		sinogramm.setOrigin(this.getOrigin());
+		
+		for(int indexDetector = 0; indexDetector < numberPixel; indexDetector++){
+			for(int indexBeta = 0; indexBeta < projections; indexBeta++){
+			
+			}
+		}
+		return sinogramm;
+		
+	}
+	
 }
