@@ -17,7 +17,7 @@ public class FilteredBP extends Grid2D {
 	
 	}
 	
-	public Grid2D filteredBackProjection(Grid2D sinogramm, float detectorSpacing, int numberProjections, boolean ramLak){
+	public Grid2D filteredBackProjection(Grid2D sinogramm, float detectorSpacing, int numberProjections,double scanAngle, boolean ramLak){
 		
 		// gefiltertes Sinogramm 
 		Grid2D filteredSinogramm = new Grid2D(sinogramm);
@@ -67,11 +67,11 @@ public class FilteredBP extends Grid2D {
 		if(ramLak){
 //			filteredSinogramm.show("RamLak");
 		}else{
-//			filteredSinogramm.show("Ramp Filter");
+			filteredSinogramm.show("Ramp Filter");
 		}
 		
 		//Rueckprojektion
-		backProjection(filteredSinogramm,numberProjections);
+		backProjection(filteredSinogramm,numberProjections,scanAngle);
 		
 		return this;
  		
@@ -135,9 +135,9 @@ public class FilteredBP extends Grid2D {
 		return line;
 	}
 	
-	protected void backProjection(Grid2D filteredS, int numberProjections){
+	protected void backProjection(Grid2D filteredS, int numberProjections, double scanAngle){
 		
-		double angleWidthR = Math.PI / numberProjections;
+		double angleWidthR = scanAngle / numberProjections;
 
 		for(int j = 0; j < this.getWidth(); j++){
 			for(int k = 0; k < this.getHeight(); k++){

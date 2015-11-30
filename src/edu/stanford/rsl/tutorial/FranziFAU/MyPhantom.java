@@ -76,23 +76,25 @@ public class MyPhantom extends Grid2D{
 		int numberProjections = 379;
 		float detectorSpacing = 1.0f;
 		int numberPixel = 500;
+		double scanAngleParallel = Math.PI;
 
 //		RadonTransform rad = new RadonTransform(numberProjections,detectorSpacing,numberPixel);
 //		rad.createSinogramm(bild);
 //		rad.show("Sinogramm");
 //		FilteredBP fbp = new FilteredBP(bild);
-//		fbp.filteredBackProjection(rad, detectorSpacing,numberProjections,false);
+//		fbp.filteredBackProjection(rad, detectorSpacing,numberProjections,scanAngleParallel,false);
 //		fbp.show("Reconstruction");
 //		
 //		FilteredBP fbpRL = new FilteredBP(bild);
-//		fbpRL.filteredBackProjection(rad,detectorSpacing,numberProjections,true);
+//		fbpRL.filteredBackProjection(rad,detectorSpacing,numberProjections,scanAngleParallel,true);
 //		fbpRL.show("Reconstruction Ram-Lak");
 //		
 //		Grid2D differenceImage = (Grid2D)NumericPointwiseOperators.subtractedBy(fbp, fbpRL);
 //		differenceImage.show("Unterschiede");
 		
-		FanBeamReconstruction fanbeam = new FanBeamReconstruction(300,600,301,1.f,650,(float)Math.PI*2);
-		fanbeam.fanBeam(bild);
+		FanBeamReconstruction fanbeam = new FanBeamReconstruction(300,600,301,1.f,599,(float)Math.PI*2);
+		 fanbeam.fanBeam(bild);
+	
 	}	
 	
 }

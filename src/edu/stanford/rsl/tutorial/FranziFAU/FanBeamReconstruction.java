@@ -15,7 +15,7 @@ import edu.stanford.rsl.conrad.numerics.Solvers;
 
 public class FanBeamReconstruction extends Grid2D {
 	
-	protected Grid2D fanOGram;
+	
 	protected float detectorSize;
 	protected float deltaBeta;
 	protected float openingAngle;
@@ -28,7 +28,7 @@ public class FanBeamReconstruction extends Grid2D {
 	public FanBeamReconstruction( float dsi, float dsd, int numberProjections, float detectorspacing, int numberOfPixel, float projectionAngle){
 		super(numberOfPixel,numberProjections);
 
-		detectorSize = detectorSpacing*numberPixel;	
+		detectorSize = detectorspacing*numberOfPixel;	
 		openingAngle = (float)(2.f*Math.atan(((detectorSize/2.d)/dsd)));
 		deltaBeta = projectionAngle / numberProjections;		
 		projections = numberProjections;
@@ -120,20 +120,53 @@ public class FanBeamReconstruction extends Grid2D {
 				
 			}
 		}
-		this.show();
+		this.show("Fan-O-Gram");
+		Grid2D sinogramm = rebinning();
+		
+		FilteredBP fbpRL = new FilteredBP(phantom);
+		fbpRL.filteredBackProjection(sinogramm,detectorSpacing,projections,2*Math.PI,true);
+		fbpRL.show("Reconstruction FanBeam");
 		
 		return this;
 	}
 
-	public Grid2D rebinning(){
+	private Grid2D rebinning(){
 		Grid2D sinogramm = new Grid2D(this.getWidth(),this.getHeight());
 		sinogramm.setOrigin(this.getOrigin());
+		sinogramm.setSpacing(this.getSpacing());
+		// compute the values for the sinogramm 
+		//Alternative 1:
+//		for(int indexDetector = 0; indexDetector < numberPixel; indexDetector++){
+//			
+//			double gamma = Math.asin((indexDetector-(detectorSize/2))/ dSI);
+//			// change beta and compute the teta for the given gamma
+//			for(int indexBeta = 0; indexBeta < projections; indexBeta++){
+//				
+//				double teta = gamma + (indexBeta*deltaBeta);	
+//				double [] index = sinogramm.physicalToIndex(indexDetector-(detectorSize/2), teta);
+//				if(index[1] < projections){
+//					float valSinogramm = InterpolationOperators.interpolateLinear(this, indexDetector, indexBeta);
+//					sinogramm.setAtIndex(indexDetector,(int) index[1], valSinogramm); // + sinogramm.getAtIndex(indexDetector,(int)index[1]));
+//				}
+//			}
+//			
+//		}
 		
-		for(int indexDetector = 0; indexDetector < numberPixel; indexDetector++){
-			for(int indexBeta = 0; indexBeta < projections; indexBeta++){
-			
+//		//Alternative 2:
+		for(int indexS = 0; indexS < sinogramm.getWidth(); indexS++){
+			for(int indexTeta = 0; indexTeta < sinogramm.getHeight(); indexTeta++){
+
+				double [] indexPhysical = sinogramm.indexToPhysical(indexS, indexTeta);
+				double gamma = Math.asin(indexPhysical[0]/dSI);
+				double beta = indexPhysical[1] - gamma;
+				double [] indexFan = this.physicalToIndex(indexPhysical[0], beta);
+				float value = InterpolationOperators.interpolateLinear(this, indexFan[0], indexFan[1]);
+				sinogramm.setAtIndex(indexS, indexTeta, value);
+				
 			}
-		}
+		}	
+		
+		sinogramm.show("Sinogramm FanBeam");
 		return sinogramm;
 		
 	}
