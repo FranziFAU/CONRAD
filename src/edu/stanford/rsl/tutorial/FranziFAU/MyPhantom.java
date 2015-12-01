@@ -10,7 +10,9 @@ import edu.stanford.rsl.conrad.data.numeric.InterpolationOperators;
 import edu.stanford.rsl.conrad.data.numeric.NumericPointwiseOperators;
 import edu.stanford.rsl.conrad.utils.ImageGridBuffer;
 import edu.stanford.rsl.conrad.utils.ImageUtil;
-import edu.stanford.rsl.tutorial.parallel.ParallelProjector2D;
+
+
+
 
 public class MyPhantom extends Grid2D{
 
@@ -93,7 +95,8 @@ public class MyPhantom extends Grid2D{
 //		differenceImage.show("Unterschiede");
 		
 		FanBeamReconstruction fanbeam = new FanBeamReconstruction(300,600,301,1.f,599,(float)Math.PI*2);
-		 fanbeam.fanBeam(bild);
+		fanbeam.fanBeam(bild);
+
 	
 	}	
 	

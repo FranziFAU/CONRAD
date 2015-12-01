@@ -47,12 +47,12 @@ public class FanBeamReconstruction extends Grid2D {
 		imageBox.setUpperCorner(new PointND(-phantom.getOrigin()[0],phantom.getOrigin()[1],1.0));
 
 		
-		for(int indexProjection = 1; indexProjection < projections; indexProjection++){
+		for(int indexProjection = 0; indexProjection < projections; indexProjection++){
 			
 			// Source position
-			float Beta = deltaBeta*indexProjection;
-			float sin = (float) Math.sin(Beta + (Math.PI/2));
-			float cos = (float) Math.cos(Beta + (Math.PI/2));
+			float beta = deltaBeta*indexProjection;
+			float sin = (float) Math.sin(beta + (Math.PI/2));
+			float cos = (float) Math.cos(beta + (Math.PI/2));
 			
 			PointND sourcePosition = new PointND(sin*dSI,cos*dSI,0.0);
 			SimpleVector source = sourcePosition.getAbstractVector();
@@ -83,8 +83,8 @@ public class FanBeamReconstruction extends Grid2D {
 				// find intersection with bounding box
 				ArrayList<PointND> crossingPoints = imageBox.intersect(line);
 				if(crossingPoints.size()==0){
-					PointND detectorPositionNew = new PointND(-result.getElement(0),-result.getElement(1),0.0);
-					line = new StraightLine(sourcePosition,detectorPositionNew);
+					
+					line.setDirection(line.getDirection().multipliedBy(-1.d));
 					crossingPoints = imageBox.intersect(line);
 				}
 				
@@ -94,7 +94,7 @@ public class FanBeamReconstruction extends Grid2D {
 					PointND c2 = crossingPoints.get(1);					
 
 					double distance = c1.euclideanDistance(c2);
-					double delta = 0.5; // in mm
+					double delta = 0.25; // in mm
 					// Richtungsvektor bestimmen
 					double deltax = (c2.get(0)-c1.get(0))/(distance);
 					double deltay = (c2.get(1)-c1.get(1))/(distance);
@@ -124,7 +124,7 @@ public class FanBeamReconstruction extends Grid2D {
 		Grid2D sinogramm = rebinning();
 		
 		FilteredBP fbpRL = new FilteredBP(phantom);
-		fbpRL.filteredBackProjection(sinogramm,detectorSpacing,projections,2*Math.PI,true);
+		fbpRL.filteredBackProjection(sinogramm,detectorSpacing,projections,(2*Math.PI),true);
 		fbpRL.show("Reconstruction FanBeam");
 		
 		return this;
@@ -135,31 +135,32 @@ public class FanBeamReconstruction extends Grid2D {
 		sinogramm.setOrigin(this.getOrigin());
 		sinogramm.setSpacing(this.getSpacing());
 		// compute the values for the sinogramm 
-		//Alternative 1:
-//		for(int indexDetector = 0; indexDetector < numberPixel; indexDetector++){
-//			
-//			double gamma = Math.asin((indexDetector-(detectorSize/2))/ dSI);
-//			// change beta and compute the teta for the given gamma
-//			for(int indexBeta = 0; indexBeta < projections; indexBeta++){
-//				
-//				double teta = gamma + (indexBeta*deltaBeta);	
-//				double [] index = sinogramm.physicalToIndex(indexDetector-(detectorSize/2), teta);
-//				if(index[1] < projections){
-//					float valSinogramm = InterpolationOperators.interpolateLinear(this, indexDetector, indexBeta);
-//					sinogramm.setAtIndex(indexDetector,(int) index[1], valSinogramm); // + sinogramm.getAtIndex(indexDetector,(int)index[1]));
-//				}
-//			}
-//			
-//		}
 		
-//		//Alternative 2:
+		//Alternative 2:
 		for(int indexS = 0; indexS < sinogramm.getWidth(); indexS++){
 			for(int indexTeta = 0; indexTeta < sinogramm.getHeight(); indexTeta++){
+				if(indexS == 210 && indexTeta == 286){
+					int a = 3;
+					a = 4;
+				}
 
 				double [] indexPhysical = sinogramm.indexToPhysical(indexS, indexTeta);
 				double gamma = Math.asin(indexPhysical[0]/dSI);
 				double beta = indexPhysical[1] - gamma;
-				double [] indexFan = this.physicalToIndex(indexPhysical[0], beta);
+				
+				
+				if(beta < 0){
+					beta += Math.PI*2;
+				}else if(beta > (Math.PI*2)){
+					beta -= Math.PI*2;
+				}	
+				
+				if(beta < (Math.PI*2) && beta > ((Math.PI*2)-deltaBeta)){
+					beta = (Math.PI*2)-deltaBeta;
+				}
+				
+				double t = Math.tan(gamma)*dSD;
+				double [] indexFan = this.physicalToIndex(t, beta);
 				float value = InterpolationOperators.interpolateLinear(this, indexFan[0], indexFan[1]);
 				sinogramm.setAtIndex(indexS, indexTeta, value);
 				

@@ -65,9 +65,9 @@ public class FilteredBP extends Grid2D {
 			}		
 		}			
 		if(ramLak){
-//			filteredSinogramm.show("RamLak");
+			filteredSinogramm.show("RamLak");
 		}else{
-			filteredSinogramm.show("Ramp Filter");
+//			filteredSinogramm.show("Ramp Filter");
 		}
 		
 		//Rueckprojektion
@@ -139,17 +139,17 @@ public class FilteredBP extends Grid2D {
 		
 		double angleWidthR = scanAngle / numberProjections;
 
-		for(int j = 0; j < this.getWidth(); j++){
-			for(int k = 0; k < this.getHeight(); k++){
+		for(int width = 0; width < this.getWidth(); width++){
+			for(int height = 0; height < this.getHeight(); height++){
 				
-				double [] imageWorld = this.indexToPhysical(j, k);		
+				double [] imageWorld = this.indexToPhysical(width, height);		
 				
-				for(int i = 0; i < numberProjections; i ++){
+				for(int indexProj = 0; indexProj < numberProjections; indexProj ++){
 										
-					double s = (imageWorld[0]*Math.cos(angleWidthR*i) + imageWorld[1]*Math.sin(angleWidthR*i));
-					double [] sinoIndex = filteredS.physicalToIndex(s, i);
-					float val =InterpolationOperators.interpolateLinear(filteredS, sinoIndex[0], i);
-					this.setAtIndex(j, k, this.getAtIndex(j,k) + val);
+					double s = (imageWorld[0]*Math.cos(angleWidthR*indexProj) + imageWorld[1]*Math.sin(angleWidthR*indexProj));
+					double [] sinoIndex = filteredS.physicalToIndex(s, indexProj);
+					float val =InterpolationOperators.interpolateLinear(filteredS, sinoIndex[0], indexProj);
+					this.setAtIndex(width, height, this.getAtIndex(width,height) + val);
 				}
 				
 			}
