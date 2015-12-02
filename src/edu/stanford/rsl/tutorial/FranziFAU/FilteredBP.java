@@ -19,12 +19,13 @@ public class FilteredBP extends Grid2D {
 	
 	public Grid2D filteredBackProjection(Grid2D sinogramm, float detectorSpacing, int numberProjections,double scanAngle, boolean ramLak){
 		
-		// gefiltertes Sinogramm 
+		// filtered sinogramm
 		Grid2D filteredSinogramm = new Grid2D(sinogramm);
 		
-		//Filter fuer Ram-Lak
+		//construction of the ram lak filter
 		Grid1DComplex filter = new Grid1DComplex(filteredSinogramm.getSubGrid(0));
 		
+		//watch out x-axes is from 0 to - infinity and then from infinity to 0!
 		for(int n = 0; n < filter.getSize()[0]/2; n++){
 			float val;
 			if(n == 0){
@@ -49,17 +50,17 @@ public class FilteredBP extends Grid2D {
 		filter.transformForward();	
 			
 		
-		//Sinogramm zeilenweise auslesen
+		//read out each line of the sinogramm and apply filtering
 		for(int s = 0; s < sinogramm.getHeight(); s++){
 			Grid1DComplex line_c = new Grid1DComplex(filteredSinogramm.getSubGrid(s));			
-			//Linie filtern
+			//filter the line
 			if(ramLak){
 				filteringRamLak(line_c,filter);
 			}else{
 				filtering(line_c,detectorSpacing);
 			}
 				
-			//gefilterte Linie speichern
+			//save filtered line
 			for(int indexWidth = 0; indexWidth < filteredSinogramm.getWidth(); indexWidth++){
 				filteredSinogramm.setAtIndex(indexWidth, s, line_c.getRealAtIndex(indexWidth));
 			}		
@@ -70,7 +71,7 @@ public class FilteredBP extends Grid2D {
 //			filteredSinogramm.show("Ramp Filter");
 		}
 		
-		//Rueckprojektion
+		//backprojection
 		backProjection(filteredSinogramm,numberProjections,scanAngle);
 		
 		return this;
@@ -78,10 +79,10 @@ public class FilteredBP extends Grid2D {
 	}
 	
 	protected Grid1DComplex filteringRamLak (Grid1DComplex line, Grid1DComplex filter){		
-		//FFT der Detektorlinie		
+		//FFT of the detector line	
 		line.transformForward();
 		
-		// Linie mit Filter Multiplizieren		
+		// multiply line with filter
 		for(int index = 0; index < line.getSize()[0]; index++){
 			
 			Complex lineVal = new Complex(line.getRealAtIndex(index),line.getImagAtIndex(index));
@@ -92,7 +93,7 @@ public class FilteredBP extends Grid2D {
 			line.setImagAtIndex(index, (float)result.getImag());
 		}
 
-		// IFT der Detektorlinie	
+		// IFT of the detector line
 		line.transformInverse();
 		
 		return line;
@@ -101,17 +102,17 @@ public class FilteredBP extends Grid2D {
 	protected Grid1DComplex filtering(Grid1DComplex line, float spacing){
 		
 		
-		//FFT der Detektorlinie		
+		//FFT of the detector line
 		line.transformForward();	
 		
-		// Berechung von frequency spacing
+		// compute the frequency spacing
 		int k = line.getSize()[0];		
 	
 		float deltaf = 1.f/(spacing*k);
 		
-		// Filter aufstellen
+		// set up filter (ramp filter)
 
-				
+		//value of omega at the current position		
 		float j = 0;
 		for(int i = 0; i < k; i++){
 			
@@ -129,7 +130,7 @@ public class FilteredBP extends Grid2D {
 			
 		}	
 		
-		// IFT der Detektorlinie
+		// IFT of the detector line
 		line.transformInverse();
 	
 		return line;
@@ -137,18 +138,23 @@ public class FilteredBP extends Grid2D {
 	
 	protected void backProjection(Grid2D filteredS, int numberProjections, double scanAngle){
 		
+		// compute angular spacing
 		double angleWidthR = scanAngle / numberProjections;
-
+		// walk over the reconstructed image
 		for(int width = 0; width < this.getWidth(); width++){
 			for(int height = 0; height < this.getHeight(); height++){
-				
+				// index converted into physical coordinate system
 				double [] imageWorld = this.indexToPhysical(width, height);		
-				
+				// look in all projections
 				for(int indexProj = 0; indexProj < numberProjections; indexProj ++){
-										
+					// value that is on the line (line equation s) 
+					//will be added to the current position of the reconstructed image					
 					double s = (imageWorld[0]*Math.cos(angleWidthR*indexProj) + imageWorld[1]*Math.sin(angleWidthR*indexProj));
+					// back into pixel coordinate system
 					double [] sinoIndex = filteredS.physicalToIndex(s, indexProj);
+					//read out value of the sinogramm
 					float val =InterpolationOperators.interpolateLinear(filteredS, sinoIndex[0], indexProj);
+					// set value
 					this.setAtIndex(width, height, this.getAtIndex(width,height) + val);
 				}
 				

@@ -22,10 +22,10 @@ public class RadonTransform extends Grid2D{
 	protected int projections;
 	
 	public RadonTransform(int numberProjections,float detectorSpacing, int numberPixel){
-		// Resultierende Bild
+		// result image (sinogramm)
 		super(numberPixel,numberProjections);
 		
-		//Detektorgroessen
+		//detector parameter
 		detectorSize = detectorSpacing*numberPixel;
 		pixel = numberPixel;
 		pixelWidth = ((float)detectorSpacing );		
@@ -38,17 +38,17 @@ public class RadonTransform extends Grid2D{
 	
 	public Grid2D createSinogramm(Grid2D phantom) {
 		
-		// Bouding Box erstellen		
+		// Bouding Box 	
 		Box imageBox = new Box(phantom.getWidth()*phantom.getSpacing()[0],phantom.getHeight()*phantom.getSpacing()[1],2.0d);
 		imageBox.setLowerCorner(new PointND(phantom.getOrigin()[0],-phantom.getOrigin()[1],-1.0));
 		imageBox.setUpperCorner(new PointND(-phantom.getOrigin()[0],phantom.getOrigin()[1],1.0));
 		
-		//ueber die einzelnen Projektionen laufen
+		//walk over each projection
 		for(int indexProjections = 0; indexProjections < projections; indexProjections++){
-			// Entlang des Detektors laufen
+			// walk along the detector
 			for(int indexDetektor = 0; indexDetektor < pixel; indexDetektor++){
 				
-				// Projektorlinien bestimmen				
+				// define the parallel lines of the detector				
 				double [] indexWorld = this.indexToPhysical(indexDetektor, indexProjections);				
 				
 				double angle = angleWidthR * indexProjections;
@@ -64,10 +64,11 @@ public class RadonTransform extends Grid2D{
 				StraightLine line = new StraightLine(p1,p2);				
 				
 				
-				//Schnittpunkte von Box und Gerade berechnen
+				//intersection of the box and the line
 									
 				ArrayList<PointND> crossingPoints = imageBox.intersect(line);
 				
+				//if there is no intersection -> change direction of the line and look again
 				if(crossingPoints.size() == 0){
 					p2 = new PointND(cos*s + sin, sin*s - cos, 0.0d);
 					line = new StraightLine(p1,p2);
@@ -78,18 +79,20 @@ public class RadonTransform extends Grid2D{
 						PointND c1 = crossingPoints.get(0);						
 						PointND c2 = crossingPoints.get(1);					
 
+						//compute distance between intersectoin points
 						double distance = c1.euclideanDistance(c2);
-						double delta = 0.5; // in mm
-						// Richtungsvektor bestimmen
+
+						// define the direction of the line
 						double deltax = (c2.get(0)-c1.get(0))/(distance);
 						double deltay = (c2.get(1)-c1.get(1))/(distance);
 						double deltaz = (c2.get(2)-c1.get(2))/(distance);				
 						
 						PointND richtung = new PointND(deltax,deltay,deltaz);
-						
+						//result value at the current position in the sinogramm
 						float val = 0.f;
-						
-						//Linienintegral
+						// stepsize of the integral
+						double delta = 0.5; // in mm
+						//line integral
 						for(double k = 0; k < (distance); k=k+delta){
 							
 							double indexX = c1.get(0) + k*(richtung.get(0));

@@ -95,7 +95,7 @@ public class FanBeamReconstruction extends Grid2D {
 
 					double distance = c1.euclideanDistance(c2);
 					double delta = 0.25; // in mm
-					// Richtungsvektor bestimmen
+					// determine the direction
 					double deltax = (c2.get(0)-c1.get(0))/(distance);
 					double deltay = (c2.get(1)-c1.get(1))/(distance);
 					double deltaz = (c2.get(2)-c1.get(2))/(distance);				
@@ -135,33 +135,34 @@ public class FanBeamReconstruction extends Grid2D {
 		sinogramm.setOrigin(this.getOrigin());
 		sinogramm.setSpacing(this.getSpacing());
 		// compute the values for the sinogramm 
-		
-		//Alternative 2:
+		// walk over the resulting singoramm p(s,teta)
 		for(int indexS = 0; indexS < sinogramm.getWidth(); indexS++){
 			for(int indexTeta = 0; indexTeta < sinogramm.getHeight(); indexTeta++){
-				if(indexS == 210 && indexTeta == 286){
-					int a = 3;
-					a = 4;
-				}
 
+				// world coordinates
 				double [] indexPhysical = sinogramm.indexToPhysical(indexS, indexTeta);
+				//determine gamma (angle from center, sourceposition and current  (parallel )detectorposition)
 				double gamma = Math.asin(indexPhysical[0]/dSI);
+				// compute angle of the source
 				double beta = indexPhysical[1] - gamma;
 				
-				
+				//overlapping!!
 				if(beta < 0){
 					beta += Math.PI*2;
 				}else if(beta > (Math.PI*2)){
 					beta -= Math.PI*2;
 				}	
-				
+				//discretization problem
 				if(beta < (Math.PI*2) && beta > ((Math.PI*2)-deltaBeta)){
 					beta = (Math.PI*2)-deltaBeta;
 				}
-				
+				// distance from the current position on the fan detector to its center with angle gamma
 				double t = Math.tan(gamma)*dSD;
+				//pixel corrdinate of the current position in the fan o gram
 				double [] indexFan = this.physicalToIndex(t, beta);
+				//read out value
 				float value = InterpolationOperators.interpolateLinear(this, indexFan[0], indexFan[1]);
+				//set value in the sinogramm
 				sinogramm.setAtIndex(indexS, indexTeta, value);
 				
 			}

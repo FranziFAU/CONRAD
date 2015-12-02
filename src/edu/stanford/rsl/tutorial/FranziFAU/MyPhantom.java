@@ -26,7 +26,7 @@ public class MyPhantom extends Grid2D{
 		int midw = width / 2;
 		int midh = height / 2;
 		
-		// Dreieck malen
+		// draw triangle
 		int currentWidth = width/5;
 		
 		for(int i = (height / 10); i < (midh - 3); i++){
@@ -39,7 +39,7 @@ public class MyPhantom extends Grid2D{
 			currentWidth -= 2;
 		}	
 		
-		// Quadrat malen		
+		// draw square		
 
 		for(int i = midh ; i < height; i++){
 			for(int j = width/10 ; j < midw -1; j ++){
@@ -49,7 +49,7 @@ public class MyPhantom extends Grid2D{
 			}			
 		}
 		
-		// Rechteck malen
+		// draw rectangle
 		
 		for(int i = height -6 ; i > midh; i--){
 			for(int j = width - 6; j > midw; j --){
@@ -65,36 +65,45 @@ public class MyPhantom extends Grid2D{
 	
  	public static void main(String[] args) {
 		new ImageJ();
+		//create phantom
 		MyPhantom bild = new MyPhantom(150,150,1.0,1.0);
 		bild.show("Phantom");
-		//String filenameShepp = "C:/Users/Franziska/Desktop/Shepp_logan.png";
-		//Grid3D sheppLoganVolume = ImageUtil.wrapImagePlus(IJ.openImage(filenameShepp));
-		//ImageGridBuffer a = new ImageGridBuffer();
-		//a.set(sheppLoganVolume);
-		//Grid2D b = a.get(0);
-		//b.show();
-	//	b.setOrigin(-b.getWidth()/2, -b.getHeight()/2);
+		String filenameShepp = "C:/Users/Franziska/Desktop/Shepp_logan.png";
+		Grid3D sheppLoganVolume = ImageUtil.wrapImagePlus(IJ.openImage(filenameShepp));
+		ImageGridBuffer allSheppLogans = new ImageGridBuffer();
+		allSheppLogans.set(sheppLoganVolume);
+		Grid2D firstSheppLogan = allSheppLogans.get(0);
+		firstSheppLogan.show();
+		firstSheppLogan.setOrigin(-firstSheppLogan.getWidth()/2, -firstSheppLogan.getHeight()/2);
 		
-		int numberProjections = 379;
-		float detectorSpacing = 1.0f;
-		int numberPixel = 500;
+		int numberProjectionsParallel = 379;
+		float detectorSpacingParallel = 1.0f;
+		int numberOfPixelParallel = 500;
 		double scanAngleParallel = Math.PI;
-
-//		RadonTransform rad = new RadonTransform(numberProjections,detectorSpacing,numberPixel);
+		//create sinogramm of the phantom
+//		RadonTransform rad = new RadonTransform(numberProjectionsParallel,detectorSpacingParallel,numberOfPixelParallel);
 //		rad.createSinogramm(bild);
 //		rad.show("Sinogramm");
+//		//filtered backprojection with ramp filter		
 //		FilteredBP fbp = new FilteredBP(bild);
-//		fbp.filteredBackProjection(rad, detectorSpacing,numberProjections,scanAngleParallel,false);
+//		fbp.filteredBackProjection(rad, detectorSpacingParallel,numberProjectionsParallel,scanAngleParallel,false);
 //		fbp.show("Reconstruction");
-//		
+//		//filtered backprojection with ram lak		
 //		FilteredBP fbpRL = new FilteredBP(bild);
-//		fbpRL.filteredBackProjection(rad,detectorSpacing,numberProjections,scanAngleParallel,true);
+//		fbpRL.filteredBackProjection(rad,detectorSpacingParallel,numberProjectionsParallel,scanAngleParallel,true);
 //		fbpRL.show("Reconstruction Ram-Lak");
 //		
 //		Grid2D differenceImage = (Grid2D)NumericPointwiseOperators.subtractedBy(fbp, fbpRL);
 //		differenceImage.show("Unterschiede");
+		//ran beam recontruction
+		float sourceIsocenterDistance = 300.f;
+		float sourceDetectorDistance = 600.f;
+		int numberOfProjectionsFan = 301;
+		float detectorSpacingFan = 1.f;
+		int numberOfPixelFan = 599;
+		float scanAngleFan = (float)Math.PI*2;
 		
-		FanBeamReconstruction fanbeam = new FanBeamReconstruction(300,600,301,1.f,599,(float)Math.PI*2);
+		FanBeamReconstruction fanbeam = new FanBeamReconstruction(sourceIsocenterDistance,sourceDetectorDistance,numberOfProjectionsFan,detectorSpacingFan,numberOfPixelFan,scanAngleFan);
 		fanbeam.fanBeam(bild);
 
 	
