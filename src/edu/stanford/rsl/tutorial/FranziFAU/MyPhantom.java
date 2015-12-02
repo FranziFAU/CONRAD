@@ -68,13 +68,13 @@ public class MyPhantom extends Grid2D{
 		//create phantom
 		MyPhantom bild = new MyPhantom(150,150,1.0,1.0);
 		bild.show("Phantom");
-		String filenameShepp = "C:/Users/Franziska/Desktop/Shepp_logan.png";
-		Grid3D sheppLoganVolume = ImageUtil.wrapImagePlus(IJ.openImage(filenameShepp));
-		ImageGridBuffer allSheppLogans = new ImageGridBuffer();
-		allSheppLogans.set(sheppLoganVolume);
-		Grid2D firstSheppLogan = allSheppLogans.get(0);
-		firstSheppLogan.show();
-		firstSheppLogan.setOrigin(-firstSheppLogan.getWidth()/2, -firstSheppLogan.getHeight()/2);
+//		String filenameShepp = "C:/Users/Franziska/Desktop/Shepp_logan.png";
+//		Grid3D sheppLoganVolume = ImageUtil.wrapImagePlus(IJ.openImage(filenameShepp));
+//		ImageGridBuffer allSheppLogans = new ImageGridBuffer();
+//		allSheppLogans.set(sheppLoganVolume);
+//		Grid2D firstSheppLogan = allSheppLogans.get(0);
+//		firstSheppLogan.show();
+//		firstSheppLogan.setOrigin(-firstSheppLogan.getWidth()/2, -firstSheppLogan.getHeight()/2);
 		
 		int numberProjectionsParallel = 379;
 		float detectorSpacingParallel = 1.0f;

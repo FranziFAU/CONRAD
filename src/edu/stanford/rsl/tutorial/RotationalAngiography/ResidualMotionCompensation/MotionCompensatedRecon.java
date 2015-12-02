@@ -276,7 +276,7 @@ public class MotionCompensatedRecon{
 		BufferedProjectionSink sink = new ImagePlusDataSink();
 		
 		//	Creating the filter pipeline. 
-		ParallelImageFilterPipeliner filteringPipeline = 
+		final ParallelImageFilterPipeliner filteringPipeline = 
 				new ParallelImageFilterPipeliner(pSource, filters, sink);
 				
 		//	Executing the previously created pipeline.
