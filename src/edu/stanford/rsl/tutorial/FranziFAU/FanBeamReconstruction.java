@@ -54,7 +54,7 @@ public class FanBeamReconstruction extends Grid2D {
 			float sin = (float) Math.sin(beta + (Math.PI/2));
 			float cos = (float) Math.cos(beta + (Math.PI/2));
 			
-			PointND sourcePosition = new PointND(sin*dSI,cos*dSI,0.0);
+			PointND sourcePosition = new PointND(-sin*dSI,cos*dSI,0.0);
 			SimpleVector source = sourcePosition.getAbstractVector();
 			
 			// Direction of the detector
@@ -72,7 +72,7 @@ public class FanBeamReconstruction extends Grid2D {
 				
 				
 				int indexPosition = indexT - ((numberPixel)/2);
-				SimpleVector eDirection = eD.multipliedBy(indexPosition);
+				SimpleVector eDirection = eD.multipliedBy(-indexPosition);
 				//determine current position on the detector
 				SimpleVector result = SimpleOperators.add(source,eISO,eDirection);				
 				PointND detectorPosition = new PointND(result.getElement(0),result.getElement(1),0.0);

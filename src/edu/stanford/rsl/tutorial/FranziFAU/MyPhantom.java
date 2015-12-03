@@ -81,9 +81,9 @@ public class MyPhantom extends Grid2D{
 		int numberOfPixelParallel = 500;
 		double scanAngleParallel = Math.PI;
 		//create sinogramm of the phantom
-//		RadonTransform rad = new RadonTransform(numberProjectionsParallel,detectorSpacingParallel,numberOfPixelParallel);
-//		rad.createSinogramm(bild);
-//		rad.show("Sinogramm");
+		RadonTransform rad = new RadonTransform(numberProjectionsParallel,detectorSpacingParallel,numberOfPixelParallel);
+		rad.createSinogramm(bild);
+		rad.show("Sinogramm");
 //		//filtered backprojection with ramp filter		
 //		FilteredBP fbp = new FilteredBP(bild);
 //		fbp.filteredBackProjection(rad, detectorSpacingParallel,numberProjectionsParallel,scanAngleParallel,false);
@@ -97,10 +97,10 @@ public class MyPhantom extends Grid2D{
 //		differenceImage.show("Unterschiede");
 		//ran beam recontruction
 		float sourceIsocenterDistance = 300.f;
-		float sourceDetectorDistance = 600.f;
+		float sourceDetectorDistance =400.f;
 		int numberOfProjectionsFan = 301;
 		float detectorSpacingFan = 1.f;
-		int numberOfPixelFan = 599;
+		int numberOfPixelFan = 500;
 		float scanAngleFan = (float)Math.PI*2;
 		
 		FanBeamReconstruction fanbeam = new FanBeamReconstruction(sourceIsocenterDistance,sourceDetectorDistance,numberOfProjectionsFan,detectorSpacingFan,numberOfPixelFan,scanAngleFan);
