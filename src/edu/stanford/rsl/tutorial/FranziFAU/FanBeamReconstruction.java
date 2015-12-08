@@ -24,13 +24,15 @@ public class FanBeamReconstruction extends Grid2D {
 	protected float dSD;
 	protected int numberPixel;
 	protected float detectorSpacing;
+	protected float angle;
 	
 	public FanBeamReconstruction( float dsi, float dsd, int numberProjections, float detectorspacing, int numberOfPixel, float projectionAngle){
 		super(numberOfPixel,numberProjections);
 
 		detectorSize = detectorspacing*numberOfPixel;	
 		openingAngle = (float)(2.f*Math.atan(((detectorSize/2.d)/dsd)));
-		deltaBeta = projectionAngle / numberProjections;		
+		deltaBeta = projectionAngle / numberProjections;	
+		angle = projectionAngle;
 		projections = numberProjections;
 		dSI = dsi;
 		dSD = dsd;
@@ -148,22 +150,26 @@ public class FanBeamReconstruction extends Grid2D {
 				
 				//overlapping!!
 				if(beta < 0){
-					beta += Math.PI*2;
+					beta += (Math.PI*2);
 				}else if(beta > (Math.PI*2)){
-					beta -= Math.PI*2;
+					beta -= (Math.PI*2);
 				}	
 				//discretization problem
-				if(beta < (Math.PI*2) && beta > ((Math.PI*2)-deltaBeta)){
-					beta = (Math.PI*2)-deltaBeta;
+				if(beta < ((Math.PI*2)) && beta > (((Math.PI*2))-deltaBeta)){
+					beta = ((Math.PI*2))-deltaBeta;
 				}
 				// distance from the current position on the fan detector to its center with angle gamma
 				double t = Math.tan(gamma)*dSD;
 				//pixel corrdinate of the current position in the fan o gram
-				double [] indexFan = this.physicalToIndex(t, beta);
-				//read out value
-				float value = InterpolationOperators.interpolateLinear(this, indexFan[0], indexFan[1]);
-				//set value in the sinogramm
-				sinogramm.setAtIndex(indexS, indexTeta, value);
+				if(beta < angle && beta >= 0){
+					double [] indexFan = this.physicalToIndex(t, beta);
+					//read out value
+					float value = InterpolationOperators.interpolateLinear(this, indexFan[0], indexFan[1]);
+					//set value in the sinogramm
+					sinogramm.setAtIndex(indexS, indexTeta, value);
+				}
+				
+
 				
 			}
 		}	

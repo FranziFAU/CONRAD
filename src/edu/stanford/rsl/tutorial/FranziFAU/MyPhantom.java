@@ -81,9 +81,9 @@ public class MyPhantom extends Grid2D{
 		int numberOfPixelParallel = 500;
 		double scanAngleParallel = Math.PI;
 		//create sinogramm of the phantom
-		RadonTransform rad = new RadonTransform(numberProjectionsParallel,detectorSpacingParallel,numberOfPixelParallel);
-		rad.createSinogramm(bild);
-		rad.show("Sinogramm");
+//		RadonTransform rad = new RadonTransform(numberProjectionsParallel,detectorSpacingParallel,numberOfPixelParallel);
+//		rad.createSinogramm(bild);
+//		rad.show("Sinogramm");
 //		//filtered backprojection with ramp filter		
 //		FilteredBP fbp = new FilteredBP(bild);
 //		fbp.filteredBackProjection(rad, detectorSpacingParallel,numberProjectionsParallel,scanAngleParallel,false);
@@ -103,9 +103,17 @@ public class MyPhantom extends Grid2D{
 		int numberOfPixelFan = 500;
 		float scanAngleFan = (float)Math.PI*2;
 		
-		FanBeamReconstruction fanbeam = new FanBeamReconstruction(sourceIsocenterDistance,sourceDetectorDistance,numberOfProjectionsFan,detectorSpacingFan,numberOfPixelFan,scanAngleFan);
-		fanbeam.fanBeam(bild);
+		float openingAngle = (float)(2.f*Math.atan((((detectorSpacingFan*numberOfPixelFan)/2.d)/sourceDetectorDistance)));
+		
+//		FanBeamReconstruction fanbeam = new FanBeamReconstruction(sourceIsocenterDistance,sourceDetectorDistance,numberOfProjectionsFan,detectorSpacingFan,numberOfPixelFan,scanAngleFan);
+//		fanbeam.fanBeam(bild);
+		
+//		FanBeamReconstruction fanbeam2 = new FanBeamReconstruction(sourceIsocenterDistance,sourceDetectorDistance,numberOfProjectionsFan,detectorSpacingFan,numberOfPixelFan,(float)Math.PI + openingAngle);
+//		fanbeam2.fanBeam(bild);
 
+		OpenCLReconstruction open = new OpenCLReconstruction(bild);
+		Grid2D result = open.adding();
+		result.show();
 	
 	}	
 	
