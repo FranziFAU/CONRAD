@@ -8,6 +8,7 @@ import edu.stanford.rsl.conrad.data.numeric.Grid2D;
 import edu.stanford.rsl.conrad.data.numeric.Grid3D;
 import edu.stanford.rsl.conrad.data.numeric.InterpolationOperators;
 import edu.stanford.rsl.conrad.data.numeric.NumericPointwiseOperators;
+import edu.stanford.rsl.conrad.data.numeric.opencl.OpenCLGrid2D;
 import edu.stanford.rsl.conrad.utils.ImageGridBuffer;
 import edu.stanford.rsl.conrad.utils.ImageUtil;
 
@@ -114,6 +115,10 @@ public class MyPhantom extends Grid2D{
 		OpenCLReconstruction open = new OpenCLReconstruction(bild);
 		Grid2D result = open.adding();
 		result.show();
+//		OpenCLGrid2D phantom = new OpenCLGrid2D(bild);
+		
+//		OpenCLGrid2D result = open.add(phantom,phantom);
+//		result.show();
 	
 	}	
 	
