@@ -22,39 +22,52 @@ import edu.stanford.rsl.conrad.opencl.OpenCLUtil;
 
 public class OpenCLReconstruction {
 	
-	protected OpenCLGrid2D image;
+	private OpenCLGrid2D image;
+	private CLProgram program = null;
+	private CLContext context = null;
+	private CLDevice device = null;
+	private CLKernel kernel = null;
 	
 	public OpenCLReconstruction(Grid2D phantom){
 		image = new OpenCLGrid2D(phantom);
 	}
 	
 	public Grid2D adding(){
+		long start = System.nanoTime();
 		
-		for(int i = 0; i < 1000000; i ++){
-			NumericPointwiseOperators.addBy(image, image);
+		for(int i = 0; i < 1000; i ++){
+			NumericPointwiseOperators.addedBy(image, image);
 		}	
+		long end = System.nanoTime();
+		
+		System.out.println("Time difference " + ((end - start)/1e6) + " ms");
 		
 		Grid2D result = new Grid2D(image);
 		return result;
 	}
 	
 	
-	public OpenCLGrid2D add(OpenCLGrid2D image1, OpenCLGrid2D image2){
+	public Grid2D add(OpenCLGrid2D image1, OpenCLGrid2D image2){
+		
 		//create context
-		CLContext context = OpenCLUtil.createContext();
+		if(context == null){
+			context = OpenCLUtil.getStaticContext();
+		}
 		//select device
-		CLDevice device = context.getMaxFlopsDevice();
+		if(device == null){
+			device = context.getMaxFlopsDevice();
+		}
 		//define local and global sizes
 		int width = Math.min(image1.getWidth(), image2.getWidth());
 		int height = Math.min(image1.getHeight(), image2.getHeight());
 		
 		int imageSize = width*height;
 		int localWorkSize = Math.min(device.getMaxWorkGroupSize(), 8);
-		int globalWorkSize = OpenCLUtil.roundUp(localWorkSize,imageSize); // rounded up to the nearest multiple of localWorkSize
-		
+		int globalWorkSizeW = OpenCLUtil.roundUp(localWorkSize,width); // rounded up to the nearest multiple of localWorkSize
+		int globalWorkSizeH = OpenCLUtil.roundUp(localWorkSize,height);
 		
 		//load sources, create and build programm
-		CLProgram program = null;
+		if(program == null){
 		try {
 			program = context.createProgram(this.getClass().getResourceAsStream("exercise4.cl"))
 					.build();
@@ -63,54 +76,58 @@ public class OpenCLReconstruction {
 			e.printStackTrace();
 			System.exit(-1);
 		}
+		}
 		
 		//write images into buffer
-		CLImageFormat format = new CLImageFormat(ChannelOrder.INTENSITY, ChannelType.FLOAT);
+		//CLImageFormat format = new CLImageFormat(ChannelOrder.INTENSITY, ChannelType.FLOAT);
 		//image1
-		CLBuffer<FloatBuffer> imageBuffer1 = context.createFloatBuffer(imageSize, Mem.READ_ONLY);
-		
-		for (int i=0;i<image1.getSize()[1];++i){
-			for (int j=0;j<image1.getSize()[0];++j)
-				imageBuffer1.getBuffer().put(image1.getAtIndex(j, i));
-		}
+		/*CLBuffer<FloatBuffer> imageBuffer1 = context.createFloatBuffer(imageSize, Mem.READ_ONLY);
+		imageBuffer1.getBuffer().put(image1.getBuffer());
 		imageBuffer1.getBuffer().rewind();
 
 		//image2
 		CLBuffer<FloatBuffer> imageBuffer2 = context.createFloatBuffer(imageSize, Mem.READ_ONLY);
-		
-		for (int i=0;i<image2.getSize()[1];++i){
-			for (int j=0;j<image2.getSize()[0];++j)
-				imageBuffer2.getBuffer().put(image1.getAtIndex(j, i));
-		}
+		imageBuffer2.getBuffer().put(image1.getBuffer());
 		imageBuffer2.getBuffer().rewind();
-		
+		*/
 		
 		//create output image
 		CLBuffer<FloatBuffer> output = context.createFloatBuffer(imageSize, Mem.WRITE_ONLY);
-		
-		CLKernel kernel = program.createCLKernel("addImages");
-		kernel.putArg(imageBuffer1).putArg(imageBuffer2).putArg(output).putArg(imageSize);
-		
+		if(kernel == null){
+			kernel = program.createCLKernel("addImages");
+		}
 		// createCommandQueue
 		CLCommandQueue queue = device.createCommandQueue();
-		queue.put1DRangeKernel(kernel, 0, globalWorkSize,localWorkSize).putBarrier()
+		image1.getDelegate().prepareForDeviceOperation();
+		image2.getDelegate().prepareForDeviceOperation();
+		// put memory on the graphics card
+		
+		kernel.putArg(image1.getDelegate().getCLBuffer()).putArg(image2.getDelegate().getCLBuffer()).putArg(output).putArg(width).putArg(height);
+		kernel.rewind();
+				
+		queue.put2DRangeKernel(kernel, 0,0,globalWorkSizeW, globalWorkSizeH,localWorkSize,localWorkSize).putBarrier()
+			//put memory from graphic card to host
 			.putReadBuffer(output, true)
 			.finish();
 		
 		
-		OpenCLGrid2D result = new OpenCLGrid2D(image1);
+		Grid2D result = new Grid2D(image1);
 		output.getBuffer().rewind();
 		
-		for (int i = 0; i < result.getBuffer().length; ++i) {
-			result.getBuffer()[i] = output.getBuffer().get();
+		for (int i = 0; i < result.getSize()[1]; ++i) {
+			for(int j = 0; j < result.getSize()[0]; j++){
+				result.setAtIndex(j,i,output.getBuffer().get());
+			}
+			
 		}
-		
-		
-		kernel.release();
-		program.release();
-		output.release();
-		imageBuffer1.release();
-		imageBuffer2.release();
+//		imageBuffer1.release();
+//		imageBuffer2.release();
+		output.release();	
+		queue.release();
+//		kernel.release();
+		//program.release();		
+		//context.release();
+
 		
 		return result;
 	}

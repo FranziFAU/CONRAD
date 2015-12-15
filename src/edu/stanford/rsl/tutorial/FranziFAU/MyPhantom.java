@@ -67,7 +67,7 @@ public class MyPhantom extends Grid2D{
  	public static void main(String[] args) {
 		new ImageJ();
 		//create phantom
-		MyPhantom bild = new MyPhantom(150,150,1.0,1.0);
+		MyPhantom bild = new MyPhantom(500,500,1.0,1.0);
 		bild.show("Phantom");
 //		String filenameShepp = "C:/Users/Franziska/Desktop/Shepp_logan.png";
 //		Grid3D sheppLoganVolume = ImageUtil.wrapImagePlus(IJ.openImage(filenameShepp));
@@ -112,13 +112,24 @@ public class MyPhantom extends Grid2D{
 //		FanBeamReconstruction fanbeam2 = new FanBeamReconstruction(sourceIsocenterDistance,sourceDetectorDistance,numberOfProjectionsFan,detectorSpacingFan,numberOfPixelFan,(float)Math.PI + openingAngle);
 //		fanbeam2.fanBeam(bild);
 
-		OpenCLReconstruction open = new OpenCLReconstruction(bild);
-		Grid2D result = open.adding();
+		OpenCLReconstruction open = new OpenCLReconstruction(bild);			
+		Grid2D result = open.adding();				
 		result.show();
-//		OpenCLGrid2D phantom = new OpenCLGrid2D(bild);
 		
-//		OpenCLGrid2D result = open.add(phantom,phantom);
-//		result.show();
+		
+		OpenCLGrid2D phantom = new OpenCLGrid2D(bild);
+		
+		OpenCLReconstruction open2 = new OpenCLReconstruction(bild);
+		Grid2D result2 = new Grid2D(bild);
+		long start = System.nanoTime();
+		for(int i = 0; i < 1000; i++){
+			result2 = open2.add(phantom,phantom);
+		}
+		long end = System.nanoTime();
+		
+		System.out.println("Time difference GPU: " + ((end - start)/1e6) + " ms");
+		
+		result2.show();
 	
 	}	
 	
