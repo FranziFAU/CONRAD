@@ -22,14 +22,14 @@ import edu.stanford.rsl.conrad.opencl.OpenCLUtil;
 
 public class OpenCLReconstruction {
 	
-	private OpenCLGrid2D image;
+	private Grid2D image;
 	private CLProgram program = null;
 	private CLContext context = null;
 	private CLDevice device = null;
 	private CLKernel kernel = null;
 	
 	public OpenCLReconstruction(Grid2D phantom){
-		image = new OpenCLGrid2D(phantom);
+		image = new Grid2D(phantom);
 	}
 	
 	public Grid2D adding(){
@@ -77,19 +77,7 @@ public class OpenCLReconstruction {
 			System.exit(-1);
 		}
 		}
-		
-		//write images into buffer
-		//CLImageFormat format = new CLImageFormat(ChannelOrder.INTENSITY, ChannelType.FLOAT);
-		//image1
-		/*CLBuffer<FloatBuffer> imageBuffer1 = context.createFloatBuffer(imageSize, Mem.READ_ONLY);
-		imageBuffer1.getBuffer().put(image1.getBuffer());
-		imageBuffer1.getBuffer().rewind();
 
-		//image2
-		CLBuffer<FloatBuffer> imageBuffer2 = context.createFloatBuffer(imageSize, Mem.READ_ONLY);
-		imageBuffer2.getBuffer().put(image1.getBuffer());
-		imageBuffer2.getBuffer().rewind();
-		*/
 		
 		//create output image
 		CLBuffer<FloatBuffer> output = context.createFloatBuffer(imageSize, Mem.WRITE_ONLY);
@@ -120,18 +108,48 @@ public class OpenCLReconstruction {
 			}
 			
 		}
-//		imageBuffer1.release();
-//		imageBuffer2.release();
+
 		output.release();	
 		queue.release();
-//		kernel.release();
-		//program.release();		
-		//context.release();
 
 		
 		return result;
 	}
 	
+	public Grid2D openCLBackprojection(OpenCLGrid2D sinogramm, int worksize, float detectorSpacing, int numberProjections,double scanAngle){
+		//create context	
+		CLContext context = OpenCLUtil.getStaticContext();
+	
+		//select device
+		CLDevice device = context.getMaxFlopsDevice();
+		
+		//define local and global sizes
+		int width = sinogramm.getWidth();
+		int height = sinogramm.getHeight();
+		
+		int imageSize = width*height;
+		int localWorkSize = Math.min(device.getMaxWorkGroupSize(), worksize);
+		int globalWorkSizeW = OpenCLUtil.roundUp(localWorkSize,width); // rounded up to the nearest multiple of localWorkSize
+		int globalWorkSizeH = OpenCLUtil.roundUp(localWorkSize,height);
+		
+		//load sources, create and build programm
+		
+		try {
+		CLProgram program = context.createProgram(this.getClass().getResourceAsStream("exercise4.cl"))
+					.build();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			System.exit(-1);
+		}
+		
+		// create image from input grid
+		CLImageFormat format = new CLImageFormat(ChannelOrder.INTENSITY, ChannelType.FLOAT);		
+
+		
+		return image;
+		
+	}
 	
 
 }

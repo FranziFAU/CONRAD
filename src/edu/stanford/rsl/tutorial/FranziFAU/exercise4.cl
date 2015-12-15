@@ -1,5 +1,6 @@
 
-
+// bi-linear texture sampler
+__constant sampler_t linearSampler = CLK_NORMALIZED_COORDS_FALSE | CLK_ADDRESS_CLAMP_TO_EDGE | CLK_FILTER_LINEAR;
 
 
 
@@ -16,5 +17,11 @@ kernel void addImages(global float* image1,global float* image2,global float *re
 	int index = idy*width + idx;
 
 	result[index] = image1[index] + image2[index];
+
+}
+
+kernel void parallelBackProjection(){
+
+
 
 }

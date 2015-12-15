@@ -78,7 +78,7 @@ public class FilteredBP extends Grid2D {
  		
 	}
 	
-	protected Grid1DComplex filteringRamLak (Grid1DComplex line, Grid1DComplex filter){		
+	private Grid1DComplex filteringRamLak (Grid1DComplex line, Grid1DComplex filter){		
 		//FFT of the detector line	
 		line.transformForward();
 		
@@ -99,7 +99,7 @@ public class FilteredBP extends Grid2D {
 		return line;
 	}
 	
-	protected Grid1DComplex filtering(Grid1DComplex line, float spacing){
+	private Grid1DComplex filtering(Grid1DComplex line, float spacing){
 		
 		
 		//FFT of the detector line
@@ -136,7 +136,7 @@ public class FilteredBP extends Grid2D {
 		return line;
 	}
 	
-	protected void backProjection(Grid2D filteredS, int numberProjections, double scanAngle){
+	private void backProjection(Grid2D filteredS, int numberProjections, double scanAngle){
 		
 		// compute angular spacing
 		double angleWidthR = scanAngle / numberProjections;
