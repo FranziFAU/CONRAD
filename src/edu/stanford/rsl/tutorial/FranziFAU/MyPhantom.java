@@ -67,8 +67,14 @@ public class MyPhantom extends Grid2D{
  	public static void main(String[] args) {
 		new ImageJ();
 		//create phantom
-		MyPhantom bild = new MyPhantom(500,500,1.0,1.0);
+		
+		
+		
+		MyPhantom bild = new MyPhantom(200,200,1.0,1.0);
 		bild.show("Phantom");
+		
+		
+	
 //		String filenameShepp = "C:/Users/Franziska/Desktop/Shepp_logan.png";
 //		Grid3D sheppLoganVolume = ImageUtil.wrapImagePlus(IJ.openImage(filenameShepp));
 //		ImageGridBuffer allSheppLogans = new ImageGridBuffer();
@@ -76,27 +82,32 @@ public class MyPhantom extends Grid2D{
 //		Grid2D firstSheppLogan = allSheppLogans.get(0);
 //		firstSheppLogan.show();
 //		firstSheppLogan.setOrigin(-firstSheppLogan.getWidth()/2, -firstSheppLogan.getHeight()/2);
-		
+
+		//Parameter for parallel Projection			
 		int numberProjectionsParallel = 379;
 		float detectorSpacingParallel = 1.0f;
 		int numberOfPixelParallel = 500;
 		double scanAngleParallel = Math.PI;
+		
 		//create sinogramm of the phantom
 //		RadonTransform rad = new RadonTransform(numberProjectionsParallel,detectorSpacingParallel,numberOfPixelParallel);
-//		rad.createSinogramm(bild);
+//		rad.createSinogramm(bild,false);
 //		rad.show("Sinogramm");
-//		//filtered backprojection with ramp filter		
+//		
+		//filtered backprojection with ramp filter		
 //		FilteredBP fbp = new FilteredBP(bild);
 //		fbp.filteredBackProjection(rad, detectorSpacingParallel,numberProjectionsParallel,scanAngleParallel,false);
 //		fbp.show("Reconstruction");
-//		//filtered backprojection with ram lak		
+//		
+		//filtered backprojection with ram lak		
 //		FilteredBP fbpRL = new FilteredBP(bild);
 //		fbpRL.filteredBackProjection(rad,detectorSpacingParallel,numberProjectionsParallel,scanAngleParallel,true);
 //		fbpRL.show("Reconstruction Ram-Lak");
-//		
+
 //		Grid2D differenceImage = (Grid2D)NumericPointwiseOperators.subtractedBy(fbp, fbpRL);
 //		differenceImage.show("Unterschiede");
-		//ran beam recontruction
+		
+		//fan beam recontruction
 		float sourceIsocenterDistance = 300.f;
 		float sourceDetectorDistance =400.f;
 		int numberOfProjectionsFan = 301;
@@ -109,27 +120,39 @@ public class MyPhantom extends Grid2D{
 //		FanBeamReconstruction fanbeam = new FanBeamReconstruction(sourceIsocenterDistance,sourceDetectorDistance,numberOfProjectionsFan,detectorSpacingFan,numberOfPixelFan,scanAngleFan);
 //		fanbeam.fanBeam(bild);
 		
+		//short scan
 //		FanBeamReconstruction fanbeam2 = new FanBeamReconstruction(sourceIsocenterDistance,sourceDetectorDistance,numberOfProjectionsFan,detectorSpacingFan,numberOfPixelFan,(float)Math.PI + openingAngle);
 //		fanbeam2.fanBeam(bild);
 
-		OpenCLReconstruction open = new OpenCLReconstruction(bild);			
-		Grid2D result = open.adding();				
-		result.show();
+		//OpenCL (exercise4)
+//		OpenCLReconstruction open = new OpenCLReconstruction(bild);			
+//		Grid2D result = open.adding();				
+//		result.show();
+		
+
+//		
+//		OpenCLGrid2D phantom = new OpenCLGrid2D(bild);
+//		
+//		OpenCLReconstruction open2 = new OpenCLReconstruction(bild);
+//		Grid2D result2 = new Grid2D(bild);
+//		long start = System.nanoTime();
+//		for(int i = 0; i < 1000; i++){
+//			result2 = open2.add(phantom,phantom);
+//		}
+//		long end = System.nanoTime();
+//		
+//		System.out.println("Time difference GPU: " + ((end - start)/1e6) + " ms");
+//		
+//		result2.show();
 		
 		
-		OpenCLGrid2D phantom = new OpenCLGrid2D(bild);
+		//create filteredSinogramm for OpenCL backprojection
+		RadonTransform rad2 = new RadonTransform(numberProjectionsParallel,detectorSpacingParallel,numberOfPixelParallel);
+//		Grid2D filteredSinogram = rad2.createSinogramm(bild,true);
+//		rad2.show("filteredSinogramm");
 		
-		OpenCLReconstruction open2 = new OpenCLReconstruction(bild);
-		Grid2D result2 = new Grid2D(bild);
-		long start = System.nanoTime();
-		for(int i = 0; i < 1000; i++){
-			result2 = open2.add(phantom,phantom);
-		}
-		long end = System.nanoTime();
-		
-		System.out.println("Time difference GPU: " + ((end - start)/1e6) + " ms");
-		
-		result2.show();
+		OpenCLReconstruction reconstruct = new OpenCLReconstruction(bild);
+//		Grid2D result = reconstruct.openCLBackprojection(filteredSinogram, 8, detectorSpacingParallel, numberOfPixelParallel, numberProjectionsParallel, scanAngleParallel, bild.getSpacing(), bild.getOrigin());
 	
 	}	
 	

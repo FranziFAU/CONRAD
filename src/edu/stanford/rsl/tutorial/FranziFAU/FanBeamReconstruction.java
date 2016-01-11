@@ -16,15 +16,15 @@ import edu.stanford.rsl.conrad.numerics.Solvers;
 public class FanBeamReconstruction extends Grid2D {
 	
 	
-	protected float detectorSize;
-	protected float deltaBeta;
-	protected float openingAngle;
-	protected int projections;
-	protected float dSI;
-	protected float dSD;
-	protected int numberPixel;
-	protected float detectorSpacing;
-	protected float angle;
+	private float detectorSize;
+	private float deltaBeta;
+	private float openingAngle;
+	private int projections;
+	private float dSI;
+	private float dSD;
+	private int numberPixel;
+	private float detectorSpacing;
+	private float angle;
 	
 	public FanBeamReconstruction( float dsi, float dsd, int numberProjections, float detectorspacing, int numberOfPixel, float projectionAngle){
 		super(numberOfPixel,numberProjections);

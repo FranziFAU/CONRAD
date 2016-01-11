@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 import ij.ImageJ;
+import edu.stanford.rsl.conrad.data.generic.datatypes.Complex;
+import edu.stanford.rsl.conrad.data.numeric.Grid1DComplex;
 import edu.stanford.rsl.conrad.data.numeric.Grid2D;
 import edu.stanford.rsl.conrad.data.numeric.InterpolationOperators;
 import edu.stanford.rsl.conrad.data.numeric.NumericPointwiseOperators;
@@ -15,11 +17,11 @@ import edu.stanford.rsl.conrad.numerics.SimpleVector;
 
 public class RadonTransform extends Grid2D{	
 	
-	protected float detectorSize;
-	protected int pixel;
-	protected double pixelWidth;
-	protected double angleWidthR;
-	protected int projections;
+	private float detectorSize;
+	private int pixel;
+	private double pixelWidth;
+	private double angleWidthR;
+	private int projections;
 	
 	public RadonTransform(int numberProjections,float detectorSpacing, int numberPixel){
 		// result image (sinogramm)
@@ -36,7 +38,7 @@ public class RadonTransform extends Grid2D{
 	}
 		
 	
-	public Grid2D createSinogramm(Grid2D phantom) {
+	public Grid2D createSinogramm(Grid2D phantom, boolean filter) {
 		
 		// Bouding Box 	
 		Box imageBox = new Box(phantom.getWidth()*phantom.getSpacing()[0],phantom.getHeight()*phantom.getSpacing()[1],2.0d);
@@ -110,10 +112,69 @@ public class RadonTransform extends Grid2D{
 			}
 		}
 		
-	
+		if(filter == true){
+			filtering(this);
+		}
 		
 		
 		return this;
+	}
+	
+	
+	private void filtering(Grid2D sinogramm){
+		//construction of the ram lak filter
+		Grid1DComplex filter = new Grid1DComplex(sinogramm.getSubGrid(0));
+		
+		//watch out x-axes is from 0 to - infinity and then from infinity to 0!
+		for(int n = 0; n < filter.getSize()[0]/2; n++){
+			float val;
+			if(n == 0){
+				val = (float)(1.f/(4.f*pixelWidth));
+				filter.setRealAtIndex(n, val);
+				filter.setImagAtIndex(n, 0.f);
+			}else if((n%2) == 0){
+				val = 0.f;
+			}else{
+				val = (-(1.f/(float)(Math.pow(n*pixelWidth, 2)*Math.pow(Math.PI, 2))));
+			}
+			
+			if(n != 0){
+				filter.setRealAtIndex(n, val);
+				filter.setImagAtIndex(n, 0.f);
+				filter.setRealAtIndex(filter.getSize()[0]-n, val);
+				filter.setImagAtIndex(filter.getSize()[0]-n, 0.f);
+			}
+
+		}
+		
+		filter.transformForward();
+		
+		for(int s = 0; s < sinogramm.getHeight(); s++){
+			Grid1DComplex line_c = new Grid1DComplex(sinogramm.getSubGrid(s));			
+			//filter the line
+			
+			line_c.transformForward();
+			
+			// multiply line with filter
+			for(int index = 0; index < line_c.getSize()[0]; index++){
+				
+				Complex lineVal = new Complex(line_c.getRealAtIndex(index),line_c.getImagAtIndex(index));
+				Complex filterVal = new Complex(filter.getRealAtIndex(index),filter.getImagAtIndex(index));
+				
+				Complex result = lineVal.mul(filterVal);
+				line_c.setRealAtIndex(index, (float)result.getReal());
+				line_c.setImagAtIndex(index, (float)result.getImag());
+			}
+
+			// IFT of the detector line
+			line_c.transformInverse();
+
+				
+			//save filtered line
+			for(int indexWidth = 0; indexWidth < sinogramm.getWidth(); indexWidth++){
+				sinogramm.setAtIndex(indexWidth, s, line_c.getRealAtIndex(indexWidth));
+			}		
+		}
 	}
 	
 

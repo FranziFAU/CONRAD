@@ -116,7 +116,7 @@ public class OpenCLReconstruction {
 		return result;
 	}
 	
-	public Grid2D openCLBackprojection(OpenCLGrid2D sinogramm, int worksize, float detectorSpacing, int numberProjections,double scanAngle){
+	public Grid2D openCLBackprojection(OpenCLGrid2D filteredSinogramm, int worksize, float detectorSpacing,int numberOfPixel, int numberProjections,double scanAngle,double [] spacing, double [] origin){
 		//create context	
 		CLContext context = OpenCLUtil.getStaticContext();
 	
@@ -124,8 +124,10 @@ public class OpenCLReconstruction {
 		CLDevice device = context.getMaxFlopsDevice();
 		
 		//define local and global sizes
-		int width = sinogramm.getWidth();
-		int height = sinogramm.getHeight();
+		int width = filteredSinogramm.getWidth();
+		int height = filteredSinogramm.getHeight();
+		double spacingAngle = scanAngle/numberProjections;
+		double originDetector = -(detectorSpacing*numberOfPixel)/2.0 ;
 		
 		int imageSize = width*height;
 		int localWorkSize = Math.min(device.getMaxWorkGroupSize(), worksize);
@@ -144,8 +146,46 @@ public class OpenCLReconstruction {
 		}
 		
 		// create image from input grid
-		CLImageFormat format = new CLImageFormat(ChannelOrder.INTENSITY, ChannelType.FLOAT);		
+		//CLImageFormat format = new CLImageFormat(ChannelOrder.INTENSITY, ChannelType.FLOAT);		
 
+		//create output image
+		CLBuffer<FloatBuffer> output = context.createFloatBuffer(imageSize, Mem.WRITE_ONLY);
+		if(kernel == null){
+			kernel = program.createCLKernel("parallelBackProjection");
+		}
+		
+		// createCommandQueue
+		CLCommandQueue queue = device.createCommandQueue();
+		filteredSinogramm.getDelegate().prepareForDeviceOperation();		
+		// put memory on the graphics card
+		
+		kernel.putArg(filteredSinogramm.getDelegate().getCLBuffer()).putArg(output)
+		.putArg(numberProjections).putArg(scanAngle)
+		.putArg(width).putArg(height)
+		.putArg(spacing[0]).putArg(spacing[1])
+		.putArg(origin[0]).putArg(origin[1])
+		.putArg(detectorSpacing).putArg(spacingAngle)
+		.putArg(originDetector).putArg(0)
+		;
+		
+		kernel.rewind();
+		
+		queue.put2DRangeKernel(kernel, 0,0,globalWorkSizeW, globalWorkSizeH,localWorkSize,localWorkSize).putBarrier()
+		//put memory from graphic card to host
+		.putReadBuffer(output, true)
+		.finish();
+		
+		output.getBuffer().rewind();
+		
+		for (int i = 0; i < image.getSize()[1]; ++i) {
+			for(int j = 0; j < image.getSize()[0]; j++){
+				image.setAtIndex(j,i,output.getBuffer().get());
+			}
+			
+		}
+
+		output.release();
+		queue.release();
 		
 		return image;
 		
