@@ -46,8 +46,8 @@ kernel void parallelBackProjection(
 		return;
 	}
 	
-	double physicalX = pixelX*spacingX - originX;
-	double physicalY= pixelY*spacingY - originY;
+	double physicalX = pixelX*spacingX + originX;
+	double physicalY= pixelY*spacingY + originY;
 	
 	float value= 0.0f;
 	
@@ -60,7 +60,7 @@ kernel void parallelBackProjection(
 		//lineare Interpolation:
 		//
 		// val1      value    val2
-		//	
+		// xLower    indexDX  xUpper
 		
 		// implement error checking?
 		int xLower = (int)floor(indexDX);
