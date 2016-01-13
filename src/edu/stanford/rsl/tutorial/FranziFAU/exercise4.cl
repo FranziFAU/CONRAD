@@ -36,7 +36,7 @@ kernel void parallelBackProjection(
 	){
 	
 	double spacingSinoX = (double)spacingSinoXF;
-	int widthSino = (int)numberDetectorpixel;//*spacingSinoX;
+	int widthSino = (int)numberDetectorpixel;
 	
 	
 	const unsigned int pixelX = get_global_id(0);
@@ -46,8 +46,6 @@ kernel void parallelBackProjection(
 		return;
 	}
 	
-	double angleWidthR = scanAngle / numberProjections;
-	
 	double physicalX = pixelX*spacingX - originX;
 	double physicalY= pixelY*spacingY - originY;
 	
@@ -55,7 +53,7 @@ kernel void parallelBackProjection(
 	
 	for(int indexP = 0; indexP < numberProjections; indexP++){
 		
-		double s = ((physicalX*cos(angleWidthR*indexP)) + (physicalY*sin(angleWidthR*indexP)));			
+		double s = ((physicalX*cos(spacingSinoY*indexP)) + (physicalY*sin(spacingSinoY*indexP)));			
 		
 		double indexDX = (s - originSinoX) / spacingSinoX;		
 		
@@ -76,7 +74,7 @@ kernel void parallelBackProjection(
 		float val1 = filteredSino[indexP*widthSino + xLower];
 		float val2 = filteredSino[indexP*widthSino + xUpper];	
 		
-		value =value + ((d_value_val1/d_val2_val1)*val2 + (d_val2_value/d_val2_val1)*val1);
+		value = value + ((d_value_val1/d_val2_val1)*val2 + (d_val2_value/d_val2_val1)*val1);
 
 	}
 	
