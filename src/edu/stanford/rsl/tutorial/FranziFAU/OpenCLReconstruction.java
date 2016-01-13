@@ -162,7 +162,8 @@ public class OpenCLReconstruction {
 		
 		kernel.putArg(filteredSinogramm.getDelegate().getCLBuffer())
 		.putArg(output)
-		.putArg(numberProjections).putArg(scanAngle)
+		.putArg(numberProjections).putArg(numberOfPixel)
+		.putArg(scanAngle)
 		.putArg(width).putArg(height)
 		.putArg(spacing[0]).putArg(spacing[1])
 		.putArg(origin[0]).putArg(origin[1])

@@ -21,6 +21,7 @@ kernel void parallelBackProjection(
 	global float *filteredSino, 
 	global float *result, 
 	int numberProjections,
+	int numberDetectorpixel,
 	float scanAngle, 
 	int width, 
 	int height,
@@ -35,6 +36,8 @@ kernel void parallelBackProjection(
 	){
 	
 	double spacingSinoX = (double)spacingSinoXF;
+	int widthSino = (int)numberDetectorpixel;//*spacingSinoX;
+	
 	
 	const unsigned int pixelX = get_global_id(0);
 	const unsigned int pixelY = get_global_id(1);
@@ -50,44 +53,31 @@ kernel void parallelBackProjection(
 	
 	float value= 0.0f;
 	
-	for(int indexP = 0; indexP < numberProjections; indexP ++){
+	for(int indexP = 0; indexP < numberProjections; indexP++){
 		
-		double s = ((physicalX*sin(angleWidthR*indexP)) + (physicalY*sin(angleWidthR*indexP)));	
+		double s = ((physicalX*cos(angleWidthR*indexP)) + (physicalY*sin(angleWidthR*indexP)));			
 		
+		double indexDX = (s - originSinoX) / spacingSinoX;		
 		
-		double indexDX = (s - originSinoX) / spacingSinoX;
-		double indexDY = (indexP - originSinoY) / spacingSinoY;
-		
-		//bilineare Interpolation:
+		//lineare Interpolation:
 		//
-		// val11      valup    val21
-		//
-		//			  value
-		//
-		// val12      valdown  val22
+		// val1      value    val2
+		//	
 		
 		// implement error checking?
 		int xLower = (int)floor(indexDX);
-		if(xLower < 0  )	
-		double dx = indexDX-xLower;
-		int yLower = (int)floor(indexDY);
-		
-		double dy = indexDY-yLower;
-		
-		
+		int xUpper = xLower + 1;
+			
+		double d_value_val1 = indexDX-xLower;
+		double d_val2_value = xUpper - indexDX;
+		double d_val2_val1 = xUpper - xLower;
+	
 		//values of the corners(pixel values)
-		//float val11 = filteredSino[index1Y*width + index1X];
-		//float val12 = filteredSino[index2Y*width + index1X];
-		//float val21 = filteredSino[index1Y*width + index2X];
-		//float val22 = filteredSino[index2Y*width + index2X];
+		float val1 = filteredSino[indexP*widthSino + xLower];
+		float val2 = filteredSino[indexP*widthSino + xUpper];	
 		
-		//float valUp = ((index2X - indexDX)/(index2X - index1X))*val11 + ((indexDX - index1X)/(index2X - index1X))*val21 ;
-		//float valDown = ((index2X - indexDX)/(index2X - index1X))*val12 + ((indexDX - index1X)/(index2X - index1X))*val22;		
-		
-		value = value + filteredSino[yLower*width + xLower];  //+ ((index2Y - indexDY)/(index2Y - index1Y))*valUp + ((indexDY- index1Y)/(index2Y - index1Y))*valDown;
-		
-		
-		
+		value =value + ((d_value_val1/d_val2_val1)*val2 + (d_val2_value/d_val2_val1)*val1);
+
 	}
 	
 	result[pixelY*width + pixelX] = value;

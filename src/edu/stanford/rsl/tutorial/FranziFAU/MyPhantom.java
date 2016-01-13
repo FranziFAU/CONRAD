@@ -148,13 +148,13 @@ public class MyPhantom extends Grid2D{
 		
 		//create filteredSinogramm for OpenCL backprojection
 		RadonTransform rad2 = new RadonTransform(numberProjectionsParallel,detectorSpacingParallel,numberOfPixelParallel);
-		Grid2D filteredSinogram = rad2.createSinogramm(bild,false);
+		Grid2D filteredSinogram = rad2.createSinogramm(bild,true);
 		OpenCLGrid2D sinogram = new OpenCLGrid2D(filteredSinogram);
 	
 		sinogram.show("filteredSinogramm");
 		
 		OpenCLReconstruction reconstruct = new OpenCLReconstruction(bild);
-		Grid2D result = reconstruct.openCLBackprojection(sinogram, 8, detectorSpacingParallel, numberOfPixelParallel, numberProjectionsParallel, (float)scanAngleParallel, bild.getSpacing(), bild.getOrigin());
+		Grid2D result = reconstruct.openCLBackprojection(sinogram, 16, detectorSpacingParallel, numberOfPixelParallel, numberProjectionsParallel, (float)scanAngleParallel, bild.getSpacing(), bild.getOrigin());
 		result.show();
 	}	
 	
