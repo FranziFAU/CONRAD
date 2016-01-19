@@ -117,7 +117,7 @@ public class OpenCLReconstruction {
 		return result;
 	}
 	
-	public Grid2D openCLBackprojection(OpenCLGrid2D filteredSinogramm, int worksize, float detectorSpacing,int numberOfPixel, int numberProjections,float scanAngle,double [] spacing, double [] origin){
+	public Grid2D openCLBackprojection(OpenCLGrid2D filteredSinogramm,int widthPhantom, int heightPhantom, int worksize, float detectorSpacing,int numberOfPixel, int numberProjections,float scanAngle,double [] spacing, double [] origin){
 		//create context	
 		CLContext context = OpenCLUtil.getStaticContext();
 	
@@ -125,15 +125,14 @@ public class OpenCLReconstruction {
 		CLDevice device = context.getMaxFlopsDevice();
 		
 		//define local and global sizes
-		int width = filteredSinogramm.getWidth();
-		int height = filteredSinogramm.getHeight();
+
 		double spacingAngle =(double) (scanAngle/numberProjections);
 		double originDetector = -(detectorSpacing*numberOfPixel)/2.0 ;
 		
-		int imageSize = width*height;
+		int imageSize = widthPhantom*heightPhantom;
 		int localWorkSize = Math.min(device.getMaxWorkGroupSize(), worksize);
-		int globalWorkSizeW = OpenCLUtil.roundUp(localWorkSize,width); // rounded up to the nearest multiple of localWorkSize
-		int globalWorkSizeH = OpenCLUtil.roundUp(localWorkSize,height);
+		int globalWorkSizeW = OpenCLUtil.roundUp(localWorkSize,widthPhantom); // rounded up to the nearest multiple of localWorkSize
+		int globalWorkSizeH = OpenCLUtil.roundUp(localWorkSize,heightPhantom);
 		
 		//load sources, create and build programm
 		
@@ -164,7 +163,7 @@ public class OpenCLReconstruction {
 		.putArg(output)
 		.putArg(numberProjections).putArg(numberOfPixel)
 		.putArg(scanAngle)
-		.putArg(width).putArg(height)
+		.putArg(widthPhantom).putArg(heightPhantom)
 		.putArg(spacing[0]).putArg(spacing[1])
 		.putArg(origin[0]).putArg(origin[1])
 		.putArg(detectorSpacing).putArg(spacingAngle)
