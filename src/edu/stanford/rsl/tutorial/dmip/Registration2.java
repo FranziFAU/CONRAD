@@ -148,6 +148,7 @@ public class Registration2 {
 			if(histo1.getElement(i) != 0)
 			{
 				// TODO: calculate entropy for histogram 1 ...from log_e to log_2 by dividing log_e(2)
+				// log_a(b) = log_c(b) / log_c(a)
 				entropy_histo1 += histo1.getElement(i)*Math.log(histo1.getElement(i))/Math.log(2);
 			}
 			//pdfs are always non zero, andere Loesung ueberall ein epsilon eintragen wo eine Null ist
