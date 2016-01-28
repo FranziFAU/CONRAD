@@ -145,8 +145,8 @@ public class RANSAC {
 		
 		
 		// TODO: calculate distance line to origin
-		//math abs nich notwendig
-		double d = Math.abs(SimpleOperators.multiplyInnerProd(point, n));
+		
+		double d = SimpleOperators.multiplyInnerProd(point, n);
 		double error = 0;
 		
 		// TODO: calculate the distance for each point to the line
