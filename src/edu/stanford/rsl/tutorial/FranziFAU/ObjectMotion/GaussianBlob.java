@@ -44,7 +44,7 @@ public class GaussianBlob extends Grid2D {
 	}
 	
 	//Compute Value of the 2D Gaussian for the given position
-	private float gaussian2D (double x, double y){		
+	protected float gaussian2D (double x, double y){		
 		
 		double exponent = -0.5*(Math.pow((x - this.meanValue[0])/this.standardDeviation[0], 2) + Math.pow((y - this.meanValue[1])/this.standardDeviation[1], 2));
 		double gaussianValue = Math.exp(exponent);
