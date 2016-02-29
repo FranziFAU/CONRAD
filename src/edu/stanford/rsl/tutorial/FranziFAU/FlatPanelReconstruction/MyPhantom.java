@@ -90,9 +90,9 @@ public class MyPhantom extends Grid2D{
 		double scanAngleParallel = Math.PI;
 		
 		//create sinogramm of the phantom
-//		RadonTransform rad = new RadonTransform(numberProjectionsParallel,detectorSpacingParallel,numberOfPixelParallel);
-//		rad.createSinogramm(bild,false);
-//		rad.show("Sinogramm");
+		RadonTransform rad = new RadonTransform(numberProjectionsParallel,detectorSpacingParallel,numberOfPixelParallel);
+		rad.createSinogramm(bild,false);
+		rad.show("Sinogramm");
 //		
 		//filtered backprojection with ramp filter		
 //		FilteredBP fbp = new FilteredBP(bild);

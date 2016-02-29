@@ -42,8 +42,8 @@ public class RadonTransform extends Grid2D{
 		
 		// Bouding Box 	
 		Box imageBox = new Box(phantom.getWidth()*phantom.getSpacing()[0],phantom.getHeight()*phantom.getSpacing()[1],2.0d);
-		imageBox.setLowerCorner(new PointND(phantom.getOrigin()[0],-phantom.getOrigin()[1],-1.0));
-		imageBox.setUpperCorner(new PointND(-phantom.getOrigin()[0],phantom.getOrigin()[1],1.0));
+		imageBox.setLowerCorner(new PointND(phantom.getOrigin()[0],phantom.getOrigin()[1],-1.0));
+		imageBox.setUpperCorner(new PointND(-phantom.getOrigin()[0],-phantom.getOrigin()[1],1.0));
 		
 		//walk over each projection
 		for(int indexProjections = 0; indexProjections < projections; indexProjections++){
