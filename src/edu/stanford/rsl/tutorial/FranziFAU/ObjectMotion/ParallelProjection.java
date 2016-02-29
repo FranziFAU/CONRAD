@@ -85,7 +85,7 @@ public class ParallelProjection extends Grid2D{
 						//result value at the current position in the sinogramm
 						float val = 0.f;
 						// stepsize of the integral
-						double delta = 0.5; // in mm
+						double delta = 1.d/3.d; // in mm
 						//line integral
 						for(double k = 0; k < (distance); k=k+delta){
 							

@@ -100,9 +100,9 @@ public class MyPhantom extends Grid2D{
 //		fbp.show("Reconstruction");
 //		
 		//filtered backprojection with ram lak		
-//		FilteredBP fbpRL = new FilteredBP(bild);
-//		fbpRL.filteredBackProjection(rad,detectorSpacingParallel,numberProjectionsParallel,scanAngleParallel,true);
-//		fbpRL.show("Reconstruction Ram-Lak");
+		FilteredBP fbpRL = new FilteredBP(bild);
+		fbpRL.filteredBackProjection(rad,detectorSpacingParallel,numberProjectionsParallel,scanAngleParallel,true);
+		fbpRL.show("Reconstruction Ram-Lak");
 
 //		Grid2D differenceImage = (Grid2D)NumericPointwiseOperators.subtractedBy(fbp, fbpRL);
 //		differenceImage.show("Unterschiede");

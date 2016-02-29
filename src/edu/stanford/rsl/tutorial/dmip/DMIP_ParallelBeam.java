@@ -15,6 +15,8 @@ import edu.stanford.rsl.conrad.geometry.transforms.Translation;
 import edu.stanford.rsl.conrad.numerics.SimpleOperators;
 import edu.stanford.rsl.conrad.numerics.SimpleVector;
 import edu.stanford.rsl.tutorial.FranziFAU.ObjectMotion.GaussianBlob;
+import edu.stanford.rsl.tutorial.FranziFAU.ObjectMotion.ParallelBackprojection;
+import edu.stanford.rsl.tutorial.FranziFAU.ObjectMotion.ParallelProjection;
 import edu.stanford.rsl.tutorial.phantoms.SheppLogan;
 import ij.ImageJ;;
 
@@ -312,23 +314,21 @@ public class DMIP_ParallelBeam {
 		// size of a detector Element [mm]
 		float detectorSpacing = 1.0f;	
 		// filterType: NONE, RAMLAK, SHEPPLOGAN
-		RampFilterType filter = RampFilterType.RAMLAK;				
+		RampFilterType filter = RampFilterType.SHEPPLOGAN;				
 		
 		// 1. Create the Shepp Logan Phantom
 		SheppLogan sheppLoganPhantom = new SheppLogan(phantomSize);
-		sheppLoganPhantom.show();
+//		sheppLoganPhantom.show();
 		
-		int imageWidth = 128;
-		int imageHeight = 128;
-		double[] imageSpacing = {1.0d,1.0d};		
-		double [] meanValue = {0.0d,0,0d};		
-		double [] standardDeviation = {30.d,30.d};
-		GaussianBlob object = new GaussianBlob(imageWidth,imageHeight,imageSpacing,	meanValue ,standardDeviation);
+
 		
 		// 2. Acquire forward projection images with a parallel projector // one step less because 180 an 0 degree are the same
-		Grid2D sinogram = parallel.projectRayDriven(object, angularRange-angularStepSize, angularStepSize, detectorSize, detectorSpacing);
+		Grid2D sinogram = parallel.projectRayDriven(sheppLoganPhantom, angularRange-angularStepSize, angularStepSize, detectorSize, detectorSpacing);
 		sinogram.show("The Sinogram");
 		Grid2D filteredSinogram = new Grid2D(sinogram);
+		
+
+		
 		
 		// 4. Ramp Filtering
 		for (int theta = 0; theta < sinogram.getSize()[1]; ++theta) 
@@ -341,6 +341,7 @@ public class DMIP_ParallelBeam {
 				filteredSinogram.putPixelValue(i, theta, tmp.getAtIndex(i));
 			}
 		}
+
 		
 		filteredSinogram.show("Filtered Sinogram");
 		

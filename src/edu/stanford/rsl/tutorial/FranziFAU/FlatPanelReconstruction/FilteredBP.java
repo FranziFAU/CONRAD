@@ -161,6 +161,8 @@ public class FilteredBP extends Grid2D {
 			}
 			
 		}
+		
+		NumericPointwiseOperators.divideBy(this, (float) (numberProjections / Math.PI));
 			
 	}
 

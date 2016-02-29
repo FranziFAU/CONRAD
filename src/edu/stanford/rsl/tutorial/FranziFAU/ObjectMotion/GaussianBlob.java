@@ -3,6 +3,7 @@ package edu.stanford.rsl.tutorial.FranziFAU.ObjectMotion;
 import ij.IJ;
 import ij.ImageJ;
 import edu.stanford.rsl.conrad.data.numeric.Grid2D;
+import edu.stanford.rsl.conrad.data.numeric.NumericPointwiseOperators;
 
 
 
@@ -56,16 +57,16 @@ public class GaussianBlob extends Grid2D {
 		
 		//Parameters for all methods
 		//GaussianBlob
-		int imageWidth = 512;
-		int imageHeight = 512;
+		int imageWidth = 128;
+		int imageHeight = 128;
 		double[] imageSpacing = {1.0d,1.0d};		
-		double [] meanValue = {30.0d,-30.0d};		
-		double [] standardDeviation = {30.d,70.d};
+		double [] meanValue = {10.0d,-10.0d};		
+		double [] standardDeviation = {20.d,30.d};
 		
 		//Projection
-		int numberProjections = 251;
+		int numberProjections = 379;
 		double detectorSpacing = 1.0d;
-		int numberPixel = 700;
+		int numberPixel = 400;
 		
 		//create GaussianBlob
 		GaussianBlob object = new GaussianBlob(imageWidth,imageHeight,imageSpacing,	meanValue ,standardDeviation);
@@ -79,9 +80,9 @@ public class GaussianBlob extends Grid2D {
 		//backproject sinogramm
 		ParallelBackprojection image = new ParallelBackprojection(object);
 		image.filteredBackprojection(sinogramm, detectorSpacing, numberProjections);
-		image.show();
+		image.show("Backprojected image");
 		
-		Grid2D subtract = new Grid2D(object);		
-
+		Grid2D subtract = (Grid2D) NumericPointwiseOperators.subtractedBy(object, image);		
+		subtract.show();
 	}
 }
