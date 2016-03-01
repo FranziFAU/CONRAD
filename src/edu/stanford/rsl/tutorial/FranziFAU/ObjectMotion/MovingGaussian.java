@@ -25,7 +25,7 @@ public class MovingGaussian extends GaussianBlob {
 		this.frequency = frequency % (Math.floor(frequency));
 		this.changedMeanValue = changedMeanValue;
 		this.changedStandardDeviation = changedStandardDeviation;
-		
+		this.counter = 0;
 		this.originalPosition = new SimpleVector(meanValue[0],meanValue[1],standardDeviation[0],standardDeviation[1]);
 		this.currentPosition = originalPosition;
 		this.changedPosition = new SimpleVector(changedMeanValue[0],changedMeanValue[1],changedStandardDeviation[0],changedStandardDeviation[1]);
@@ -41,6 +41,7 @@ public class MovingGaussian extends GaussianBlob {
 		double length = 2 * direction.normL2();
 		this.stepsize = length * this.frequency;
 		this.direction.normalizedL2();
+		
 	}
 	
 	public void setFrequency(double frequency){
@@ -64,9 +65,15 @@ public class MovingGaussian extends GaussianBlob {
 	//move Gaussian in each projection step	
 	public Grid2D moveGaussian(){		
 		
-		currentPosition.add(direction.multipliedBy(stepsize));
+	//	currentPosition.add(direction.multipliedBy(stepsize));
 		
+		if(counter % 2 == 0){
+			initializeGauss(this, this.changedMeanValue, this.changedStandardDeviation);
+		}else{
+			initializeGauss(this, this.meanValue, this.standardDeviation);
+		}
 		
+		counter = (counter + 1) % 2;
 		return this;
 	}
 	
@@ -78,10 +85,10 @@ public class MovingGaussian extends GaussianBlob {
 		int imageHeight = 128;
 		double[] imageSpacing = {1.0d,1.0d};		
 		double [] meanValue = {10.0d,-10.0d};		
-		double [] standardDeviation = {20.d,30.d};
+		double [] standardDeviation = {20.d,5.d};
 		double frequency = 0.5d;		
-		double [] newmeanValue = {10.0d,-40.0d};		
-		double [] newstandardDeviation = {20.d,30.d};
+		double [] newmeanValue = {-10.0d,40.0d};		
+		double [] newstandardDeviation = {20.d,5.d};
 		
 		MovingGaussian gauss = new MovingGaussian(imageWidth,imageHeight,imageSpacing,	meanValue ,standardDeviation, frequency,newmeanValue, newstandardDeviation);
 		

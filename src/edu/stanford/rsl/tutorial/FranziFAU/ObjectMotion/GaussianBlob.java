@@ -61,17 +61,17 @@ public class GaussianBlob extends Grid2D {
 		
 		//Parameters for all methods
 		//GaussianBlob
-		int imageWidth = 128;
-		int imageHeight = 128;
+		int imageWidth = 200;
+		int imageHeight = 200;
 		double[] imageSpacing = {1.0d,1.0d};		
-		double [] meanValue = {10.0d,-10.0d};		
-		double [] standardDeviation = {5.d,5.d};
+		double [] meanValue = {0.0d,0.0d};		
+		double [] standardDeviation = {50.d,5.d};
 		
 		//MovingGaussian
 		double frequency = 0.5d;
 		
-		double [] newmeanValue = {10.0d,-25.0d};		
-		double [] newstandardDeviation = {5.d,5.d};
+		double [] newmeanValue = {0.0d,0.0d};		
+		double [] newstandardDeviation = {50.d,10.d};
 		
 		//Projection
 		int numberProjections = 101;
@@ -87,15 +87,20 @@ public class GaussianBlob extends Grid2D {
 		
 		//create sinogramm of gaussianBlob
 		ParallelProjection sinogramm = new ParallelProjection(numberProjections,detectorSpacing,numberPixel);
-		sinogramm.createSinogramm(movingObject);
+		Grid2D sino1 = sinogramm.createSinogrammMoving(movingObject);
 		sinogramm.show("Sinogramm");
 		
 		//backproject sinogramm
 		ParallelBackprojection image = new ParallelBackprojection(object);
-		image.filteredBackprojection(sinogramm, detectorSpacing, numberProjections);
+		Grid2D reconstructed =  image.filteredBackprojection(sinogramm, detectorSpacing, numberProjections);
 		image.show("Backprojected image");
 		
-		Grid2D subtract = (Grid2D) NumericPointwiseOperators.subtractedBy(object, image);		
+		ParallelProjection sinogramm2 = new ParallelProjection(numberProjections,detectorSpacing,numberPixel);
+		Grid2D sino2 = sinogramm2.createSinogramm(reconstructed);
+		sinogramm2.show("Sinogramm2");
+
+		
+		Grid2D subtract = (Grid2D) NumericPointwiseOperators.subtractedBy(sino2, sino1);		
 		subtract.show();
 	}
 }

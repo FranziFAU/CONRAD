@@ -15,7 +15,7 @@ public class ParallelBackprojection extends Grid2D{
 		this.setSpacing(image.getSpacing());		
 	}
 	
-	public void filteredBackprojection(Grid2D sinogramm, double detectorSpacing,int numberProjections){
+	public Grid2D filteredBackprojection(Grid2D sinogramm, double detectorSpacing,int numberProjections){
 		// filtered sinogramm
 		Grid2D filteredSinogramm = new Grid2D(sinogramm);
 		
@@ -63,7 +63,7 @@ public class ParallelBackprojection extends Grid2D{
 		//backprojection
 		backProjection(filteredSinogramm,numberProjections,Math.PI);
 		
-		return;
+		return this;
  		
 	}
 	
