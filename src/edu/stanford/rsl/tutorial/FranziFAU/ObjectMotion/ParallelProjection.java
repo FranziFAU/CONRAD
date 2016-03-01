@@ -31,7 +31,7 @@ public class ParallelProjection extends Grid2D{
 		this.setSpacing(detectorSpacing,angleSpacing);
 	}
 	
-	public void createSinogramm(Grid2D phantom){
+	public void createSinogramm(MovingGaussian phantom){
 		
 		Box imageBox = new Box(phantom.getWidth()*phantom.getSpacing()[0],phantom.getHeight()*phantom.getSpacing()[1],2.0d);
 		imageBox.setLowerCorner(new PointND(phantom.getOrigin()[0],phantom.getOrigin()[1],-1.0));
@@ -40,6 +40,7 @@ public class ParallelProjection extends Grid2D{
 		//walk over each projection
 		for(int indexProjections = 0; indexProjections < numberProjections; indexProjections++){
 			// walk along the detector
+			phantom.moveGaussian();
 			for(int indexDetektor = 0; indexDetektor < numberPixel; indexDetektor++){
 				
 				// define the parallel lines of the detector				
