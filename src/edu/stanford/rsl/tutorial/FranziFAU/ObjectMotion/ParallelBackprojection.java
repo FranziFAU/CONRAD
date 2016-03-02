@@ -63,7 +63,9 @@ public class ParallelBackprojection extends Grid2D{
 		//backprojection
 		backProjection(filteredSinogramm,numberProjections,Math.PI);
 		
-		return this;
+		Grid2D result = new Grid2D(this);
+		
+		return result;
  		
 	}
 	

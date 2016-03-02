@@ -108,8 +108,12 @@ public class ParallelProjection extends Grid2D{
 			}
 		}
 		
-		return this;
+		Grid2D result = new Grid2D(this);
+		
+		return result;
 	}
+	
+	
 public Grid2D createSinogrammMoving(MovingGaussian phantom){
 		
 		
@@ -189,9 +193,9 @@ public Grid2D createSinogrammMoving(MovingGaussian phantom){
 			}
 		}
 		
-	
+		Grid2D result = new Grid2D(this);
 		
-		return this;
+		return result;
 	}
 }
 	

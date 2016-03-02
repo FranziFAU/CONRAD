@@ -56,8 +56,7 @@ public class MovingGaussian extends GaussianBlob {
 		double argument = 2 * Math.PI * this.frequency * time;
 		double phase = Math.cos(argument);		
 		
-		// compute the current Position of the moving Object
-		// multiply the argument with 0.5 to stretch the sin that it is 1 at the Position PI. That way it is easier to multiply with the direction.
+		// computes the current position/ state of the gaussian
 		SimpleVector currentPosition = direction.multipliedBy(phase);
 		currentPosition.add(midpoint);
 		
@@ -66,7 +65,9 @@ public class MovingGaussian extends GaussianBlob {
 		
 		initializeGauss(this, mean, deviation);
 		
-		return this;
+		Grid2D result = new Grid2D(this);
+		
+		return result;
 	}
 	
 
