@@ -121,7 +121,8 @@ public Grid2D createSinogrammMoving(MovingGaussian phantom){
 		//walk over each projection
 		for(int indexProjections = 0; indexProjections < numberProjections; indexProjections++){
 			// walk along the detector
-			phantom.moveGaussian();
+			phantom.moveGaussian(indexProjections * 0.3);
+		
 			for(int indexDetektor = 0; indexDetektor < numberPixel; indexDetektor++){
 				
 				this.setAtIndex(indexDetektor,indexProjections,  0.0f);
