@@ -3,6 +3,8 @@ package edu.stanford.rsl.tutorial.FranziFAU.ObjectMotion;
 import ij.IJ;
 import ij.ImageJ;
 import edu.stanford.rsl.conrad.data.numeric.Grid2D;
+import edu.stanford.rsl.conrad.data.numeric.NumericGrid;
+import edu.stanford.rsl.conrad.data.numeric.NumericGridOperator;
 import edu.stanford.rsl.conrad.data.numeric.NumericPointwiseOperators;
 
 
@@ -65,19 +67,19 @@ public class GaussianBlob extends Grid2D {
 		int imageWidth = 250;
 		int imageHeight = 250;
 		double[] imageSpacing = {1.0d,1.0d};		
-		double [] meanValue = {0.0d,0.0d};		
-		double [] standardDeviation = {30.d,2.d};
+		double [] meanValue = {0.0d,20.0d};		
+		double [] standardDeviation = {20.d,20.d};
 		
 		//MovingGaussian
-		double frequency = 0.4d;
-		
-		double [] changedMeanValue = {0.0d,-40.0d};		
-		double [] changedStandardDeviation = {30.d,2.d};
+		double frequency = 1.0d;		
+		double [] changedMeanValue = {0.0d,20.0d};		
+		double [] changedStandardDeviation = {30.d,30.d};
 		
 		//Projection
 		int numberProjections = 379;
 		double detectorSpacing = 1.0d;
-		int numberPixel = 400;
+		int numberPixel = 500;
+		double timeFactor = 0.07d; // time associated with one projection
 		
 		//create GaussianBlob
 		GaussianBlob object = new GaussianBlob(imageWidth,imageHeight,imageSpacing,	meanValue ,standardDeviation);
@@ -90,24 +92,25 @@ public class GaussianBlob extends Grid2D {
 				imageSpacing,meanValue ,standardDeviation,frequency, changedMeanValue,changedStandardDeviation);
 		
 		//create sinogramm of gaussianBlob
-		ParallelProjection sinogramm = new ParallelProjection(numberProjections,detectorSpacing,numberPixel);
+		ParallelProjection sinogramm = new ParallelProjection(numberProjections,detectorSpacing,numberPixel,timeFactor);
 		Grid2D sino1 = sinogramm.createSinogrammMoving(movingObject);
 		sino1.show("Sinogramm");
 		
 		//backproject sinogramm
-		ParallelBackprojection image = new ParallelBackprojection(object);
-		Grid2D reconstructed =  image.filteredBackprojection(sinogramm, detectorSpacing, numberProjections);
-		image.show("Backprojected image");
+//		ParallelBackprojection image = new ParallelBackprojection(object);
+//		Grid2D reconstructed =  image.filteredBackprojection(sinogramm, detectorSpacing, numberProjections);
+//		image.show("Backprojected image");		
 		
+//		Grid2D sino2 = sinogramm.createSinogramm(reconstructed);
+//		sino2.show("Sinogramm2");
 		
-		Grid2D sino2 = sinogramm.createSinogramm(reconstructed);
-		sino2.show("Sinogramm2");
-
-		Grid2D reconstructed2 = image.filteredBackprojection(sino2, detectorSpacing, numberProjections);
-		reconstructed2.show("2nd backprojection");
-
+		NumericGridOperator op = new NumericGridOperator();
 		
-		Grid2D subtract = (Grid2D) NumericPointwiseOperators.subtractedBy(sino2, sino1);		
-		subtract.show();
+		Grid2D gradient = new Grid2D(sino1);
+		op.gradY(gradient, sino1,3,false);
+		gradient.show();
+		
+//		Grid2D subtract = (Grid2D) NumericPointwiseOperators.subtractedBy(sino2, sino1);		
+//		subtract.show();
 	}
 }

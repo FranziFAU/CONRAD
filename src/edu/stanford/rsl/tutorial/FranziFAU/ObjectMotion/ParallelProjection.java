@@ -15,8 +15,9 @@ public class ParallelProjection extends Grid2D{
 	private double detectorSpacing;
 	private double angleSpacing;
 	private int numberProjections;
+	private double timeFactor;
 	
-	public ParallelProjection(int numberProjections, double detectorSpacing, int numberPixel){
+	public ParallelProjection(int numberProjections, double detectorSpacing, int numberPixel, double timeFactor){
 		//create Grid2D for sinogramm
 		super(numberPixel, numberProjections);
 		
@@ -26,6 +27,7 @@ public class ParallelProjection extends Grid2D{
 		this.detectorSpacing = detectorSpacing;
 		this.angleSpacing = (Math.PI/numberProjections);
 		this.numberProjections = numberProjections;
+		this.timeFactor = timeFactor;
 		
 		this.setOrigin(-detectorSize/2,0);
 		this.setSpacing(detectorSpacing,angleSpacing);
@@ -125,7 +127,7 @@ public Grid2D createSinogrammMoving(MovingGaussian phantom){
 		//walk over each projection
 		for(int indexProjections = 0; indexProjections < numberProjections; indexProjections++){
 			// walk along the detector
-			phantom.moveGaussian(indexProjections * 0.3);
+			phantom.moveGaussian(indexProjections * this.timeFactor);
 		
 			for(int indexDetektor = 0; indexDetektor < numberPixel; indexDetektor++){
 				
