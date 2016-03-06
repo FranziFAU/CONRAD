@@ -3,6 +3,8 @@ package edu.stanford.rsl.tutorial.FranziFAU.ObjectMotion;
 import ij.IJ;
 import ij.ImageJ;
 import edu.stanford.rsl.conrad.data.numeric.Grid2D;
+import edu.stanford.rsl.conrad.data.numeric.Grid2DComplex;
+import edu.stanford.rsl.conrad.data.numeric.Grid3D;
 import edu.stanford.rsl.conrad.data.numeric.NumericGrid;
 import edu.stanford.rsl.conrad.data.numeric.NumericGridOperator;
 import edu.stanford.rsl.conrad.data.numeric.NumericPointwiseOperators;
@@ -67,13 +69,13 @@ public class GaussianBlob extends Grid2D {
 		int imageWidth = 250;
 		int imageHeight = 250;
 		double[] imageSpacing = {1.0d,1.0d};		
-		double [] meanValue = {0.0d,20.0d};		
-		double [] standardDeviation = {20.d,20.d};
+		double [] meanValue = {0.0d,0.0d};		
+		double [] standardDeviation = {30.d,2.d};
 		
 		//MovingGaussian
 		double frequency = 1.0d;		
-		double [] changedMeanValue = {0.0d,20.0d};		
-		double [] changedStandardDeviation = {30.d,30.d};
+		double [] changedMeanValue = {0.0d,40.0d};		
+		double [] changedStandardDeviation = {30.d,2.d};
 		
 		//Projection
 		int numberProjections = 379;
@@ -97,19 +99,25 @@ public class GaussianBlob extends Grid2D {
 		sino1.show("Sinogramm");
 		
 		//backproject sinogramm
-//		ParallelBackprojection image = new ParallelBackprojection(object);
-//		Grid2D reconstructed =  image.filteredBackprojection(sinogramm, detectorSpacing, numberProjections);
-//		image.show("Backprojected image");		
+		ParallelBackprojection image = new ParallelBackprojection(object);
+		Grid2D reconstructed =  image.filteredBackprojection(sinogramm, detectorSpacing, numberProjections);
+		image.show("Backprojected image");		
 		
-//		Grid2D sino2 = sinogramm.createSinogramm(reconstructed);
-//		sino2.show("Sinogramm2");
+		Grid2D sino2 = sinogramm.createSinogramm(reconstructed);
+		sino2.show("Sinogramm2");
 		
 		NumericGridOperator op = new NumericGridOperator();
 		
-		Grid2D gradient = new Grid2D(sino1);
-		op.gradY(gradient, sino1,3,false);
-		gradient.show();
+		Grid2DComplex sino1C = new Grid2DComplex(sino1);
+		sino1C.transformForward();
+		sino1C.show();
 		
+		Grid2DComplex sino2C = new Grid2DComplex(sino2);
+		sino2C.transformForward();
+		sino2C.show();
+
+		float ssd = op.weightedSSD(sino1C, sino2C, 1.0, 1.0);
+		System.out.print(ssd);
 //		Grid2D subtract = (Grid2D) NumericPointwiseOperators.subtractedBy(sino2, sino1);		
 //		subtract.show();
 	}
