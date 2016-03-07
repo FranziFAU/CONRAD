@@ -61,6 +61,35 @@ public class GaussianBlob extends Grid2D {
 		return (float)gaussianValue;
 	}
 	
+	public static void gradProjectionGauss(NumericGrid gridRes,final NumericGrid grid,int value, boolean offsetleft) {
+		subtractOffset(gridRes,grid,grid,0,value,offsetleft);
+		gridRes.notifyAfterWrite();
+	}
+	
+	private static void subtractOffset(NumericGrid gridResult, final NumericGrid gridA, final NumericGrid gridB, int xOffset, int yOffset,boolean offsetleft) {
+
+		if(gridA.getSize()[0] != gridB.getSize()[0] || gridA.getSize()[1] != gridB.getSize()[1] )
+			System.err.println("Grids have different sizes so they can not be subtracted.");
+		
+		for (int x = xOffset; x < gridA.getSize()[0]+xOffset; ++x){
+			for (int y = yOffset; y < gridA.getSize()[1]+yOffset; ++y){
+				
+					
+					int xIdx = (x >= gridA.getSize()[0] || x < 0) ? Math.min(Math.max(0, x), gridA.getSize()[0]-1) : x;
+					int yIdx = (y >= gridA.getSize()[1] || y < 0) ? Math.min(Math.max(0, y), gridA.getSize()[1]-1) : y;
+					
+
+					if(offsetleft)
+						gridResult.setValue(gridA.getValue(new int[]{xIdx,yIdx}) - gridB.getValue(new int[]{x-xOffset,y-yOffset}),
+								new int[]{x-xOffset,y-yOffset});
+					else
+						gridResult.setValue(gridA.getValue(new int[]{x-xOffset,y-yOffset}) - gridB.getValue(new int[]{xIdx,yIdx}),
+								new int[]{x-xOffset,y-yOffset});
+				}
+		}
+		gridResult.notifyAfterWrite();
+	}
+	
 	public static void main(String[] args) {
 		new ImageJ();
 		
@@ -79,7 +108,7 @@ public class GaussianBlob extends Grid2D {
 		
 		//Projection
 		int numberProjections = 379;
-		double detectorSpacing = 1.0d;
+		double detectorSpacing = 1.3d;
 		int numberPixel = 500;
 		double timeFactor = 0.07d; // time associated with one projection
 		
@@ -108,7 +137,9 @@ public class GaussianBlob extends Grid2D {
 		
 		NumericGridOperator op = new NumericGridOperator();
 		
-		Grid2DComplex sino1C = new Grid2DComplex(sino1);
+		// Idea 1: Look at fourier space, motion introduces high frequencies
+		//compare FFT from both sinogramms (ssd, high pass filter, usw.)
+/*		Grid2DComplex sino1C = new Grid2DComplex(sino1);
 		sino1C.transformForward();
 		sino1C.show();
 		
@@ -118,6 +149,27 @@ public class GaussianBlob extends Grid2D {
 
 		float ssd = op.weightedSSD(sino1C, sino2C, 1.0, 1.0);
 		System.out.print(ssd);
+*/
+		
+		//Idea 2: Look at gradient images
+		Grid2D result =  new Grid2D(sino1);
+		op.fill(result, 0.0f);		
+		gradProjectionGauss(result,sino1,3,true);
+		result.show("Gradient1");
+		float mean = op.sum(result);
+		mean /= result.getNumberOfElements();		
+		System.out.println(mean);	
+		
+		Grid2D result2 =  new Grid2D(sino2);
+		op.fill(result2, 0.0f);		
+		gradProjectionGauss(result2,sino2,3,true);
+		result2.show("Gradient2");
+		float mean2 = op.sum(result2);
+		mean2 /= result2.getNumberOfElements();		
+		System.out.println(mean2);		
+//		float ssd2 = op.weightedSSD(result, result2, 1.0, 1.0);
+//		System.out.println(ssd2);
+		
 //		Grid2D subtract = (Grid2D) NumericPointwiseOperators.subtractedBy(sino2, sino1);		
 //		subtract.show();
 	}
