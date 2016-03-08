@@ -2,6 +2,7 @@ package edu.stanford.rsl.tutorial.FranziFAU.ObjectMotion;
 
 import ij.IJ;
 import ij.ImageJ;
+import edu.stanford.rsl.conrad.data.numeric.Grid1D;
 import edu.stanford.rsl.conrad.data.numeric.Grid2D;
 import edu.stanford.rsl.conrad.data.numeric.Grid2DComplex;
 import edu.stanford.rsl.conrad.data.numeric.Grid3D;
@@ -68,8 +69,9 @@ public class GaussianBlob extends Grid2D {
 	
 	private static void subtractOffset(NumericGrid gridResult, final NumericGrid gridA, final NumericGrid gridB, int xOffset, int yOffset,boolean offsetleft) {
 
-		if(gridA.getSize()[0] != gridB.getSize()[0] || gridA.getSize()[1] != gridB.getSize()[1] )
+		if(gridA.getSize()[0] != gridB.getSize()[0] || gridA.getSize()[1] != gridB.getSize()[1] ){
 			System.err.println("Grids have different sizes so they can not be subtracted.");
+		}
 		
 		for (int x = xOffset; x < gridA.getSize()[0]+xOffset; ++x){
 			for (int y = yOffset; y < gridA.getSize()[1]+yOffset; ++y){
@@ -90,6 +92,26 @@ public class GaussianBlob extends Grid2D {
 		gridResult.notifyAfterWrite();
 	}
 	
+	public static float [] compareSinogrammsLinewise(Grid2D sino1, Grid2D sino2){
+		
+		NumericGridOperator op = new NumericGridOperator();
+		
+		if(sino1.getSize()[0] != sino2.getSize()[0] || sino1.getSize()[1] != sino2.getSize()[1] ){
+			System.err.println("Sinogramms have different sizes so they can not be subtracted.");
+		}		
+		
+		float [] result = new float[sino1.getHeight()];
+		
+		for(int projectionLine = 0; projectionLine < sino1.getHeight(); projectionLine++){
+			Grid1D lineSino1 = sino1.getSubGrid(projectionLine);
+			Grid1D lineSino2 = sino2.getSubGrid(projectionLine);
+			
+			result[projectionLine] = op.weightedSSD(lineSino1, lineSino2, 1.0, 0.0);			
+		}
+		
+		return result;
+	}
+	
 	public static void main(String[] args) {
 		new ImageJ();
 		
@@ -102,8 +124,8 @@ public class GaussianBlob extends Grid2D {
 		double [] standardDeviation = {30.d,2.d};
 		
 		//MovingGaussian
-		double frequency = 1.0d;		
-		double [] changedMeanValue = {0.0d,40.0d};		
+		double frequency = 1.3d;		
+		double [] changedMeanValue = {0.0d,50.0d};		
 		double [] changedStandardDeviation = {30.d,2.d};
 		
 		//Projection
@@ -135,10 +157,11 @@ public class GaussianBlob extends Grid2D {
 		Grid2D sino2 = sinogramm.createSinogramm(reconstructed);
 		sino2.show("Sinogramm2");
 		
-		NumericGridOperator op = new NumericGridOperator();
+		
 		
 		// Idea 1: Look at fourier space, motion introduces high frequencies
 		//compare FFT from both sinogramms (ssd, high pass filter, usw.)
+
 /*		Grid2DComplex sino1C = new Grid2DComplex(sino1);
 		sino1C.transformForward();
 		sino1C.show();
@@ -152,6 +175,8 @@ public class GaussianBlob extends Grid2D {
 */
 		
 		//Idea 2: Look at gradient images
+		
+/*		// compute Gradient image for sino1		
 		Grid2D result =  new Grid2D(sino1);
 		op.fill(result, 0.0f);		
 		gradProjectionGauss(result,sino1,3,true);
@@ -160,6 +185,7 @@ public class GaussianBlob extends Grid2D {
 		mean /= result.getNumberOfElements();		
 		System.out.println(mean);	
 		
+		// compute Gradient image for sino2
 		Grid2D result2 =  new Grid2D(sino2);
 		op.fill(result2, 0.0f);		
 		gradProjectionGauss(result2,sino2,3,true);
@@ -167,8 +193,32 @@ public class GaussianBlob extends Grid2D {
 		float mean2 = op.sum(result2);
 		mean2 /= result2.getNumberOfElements();		
 		System.out.println(mean2);		
-//		float ssd2 = op.weightedSSD(result, result2, 1.0, 1.0);
-//		System.out.println(ssd2);
+*/
+		
+		//Idea 3: compare each projection line of the 2 sinogramms with SSD
+		
+		float [] ssd = compareSinogrammsLinewise(sino1,sino2);
+		
+		float mean = 0;		
+		
+		for(int i = 0; i < ssd.length; i++){
+//			System.out.println(ssd[i]);
+			mean += ssd[i];
+		}		
+		
+		mean /= ssd.length;
+		
+		float variance = 0.f;
+		
+		for(int i = 0; i < ssd.length; i++){
+			
+			variance += (ssd[i]-mean)*(ssd[i]-mean);			
+		}
+		
+		variance /= ssd.length;
+		
+		System.out.println("Mean: " + mean + "  Varianz: " + variance);
+		
 		
 //		Grid2D subtract = (Grid2D) NumericPointwiseOperators.subtractedBy(sino2, sino1);		
 //		subtract.show();
