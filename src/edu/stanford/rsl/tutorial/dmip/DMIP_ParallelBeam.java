@@ -15,6 +15,7 @@ import edu.stanford.rsl.conrad.geometry.transforms.Translation;
 import edu.stanford.rsl.conrad.numerics.SimpleOperators;
 import edu.stanford.rsl.conrad.numerics.SimpleVector;
 import edu.stanford.rsl.tutorial.FranziFAU.ObjectMotion.GaussianBlob;
+import edu.stanford.rsl.tutorial.FranziFAU.ObjectMotion.MovingGaussian;
 import edu.stanford.rsl.tutorial.FranziFAU.ObjectMotion.ParallelBackprojection;
 import edu.stanford.rsl.tutorial.FranziFAU.ObjectMotion.ParallelProjection;
 import edu.stanford.rsl.tutorial.phantoms.SheppLogan;
@@ -318,9 +319,7 @@ public class DMIP_ParallelBeam {
 		
 		// 1. Create the Shepp Logan Phantom
 		SheppLogan sheppLoganPhantom = new SheppLogan(phantomSize);
-//		sheppLoganPhantom.show();
-		
-
+//		sheppLoganPhantom.show();	
 		
 		// 2. Acquire forward projection images with a parallel projector // one step less because 180 an 0 degree are the same
 		Grid2D sinogram = parallel.projectRayDriven(sheppLoganPhantom, angularRange-angularStepSize, angularStepSize, detectorSize, detectorSpacing);

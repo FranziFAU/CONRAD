@@ -46,7 +46,7 @@ public class ParallelProjection extends Grid2D{
 			
 			for(int indexDetektor = 0; indexDetektor < numberPixel; indexDetektor++){
 				
-				this.setAtIndex(indexDetektor,indexProjections,  0.0f);
+				
 				
 				// define the parallel lines of the detector				
 				double [] indexWorld = this.indexToPhysical(indexDetektor, indexProjections);				
@@ -91,7 +91,7 @@ public class ParallelProjection extends Grid2D{
 						//result value at the current position in the sinogramm
 						float val = 0.f;
 						// stepsize of the integral
-						double delta = 1.d/3.d; // in mm
+						double delta = 0.5; // in mm
 						//line integral
 						for(double k = 0; k < (distance); k=k+delta){
 							
@@ -116,8 +116,7 @@ public class ParallelProjection extends Grid2D{
 	}
 	
 	
-public Grid2D createSinogrammMoving(MovingGaussian phantom){
-		
+public Grid2D createSinogrammMoving(MovingGaussian phantom){		
 		
 	
 		Box imageBox = new Box(phantom.getWidth()*phantom.getSpacing()[0],phantom.getHeight()*phantom.getSpacing()[1],2.0d);
@@ -131,7 +130,7 @@ public Grid2D createSinogrammMoving(MovingGaussian phantom){
 		
 			for(int indexDetektor = 0; indexDetektor < numberPixel; indexDetektor++){
 				
-				this.setAtIndex(indexDetektor,indexProjections,  0.0f);
+			
 				
 				// define the parallel lines of the detector				
 				double [] indexWorld = this.indexToPhysical(indexDetektor, indexProjections);				
@@ -176,7 +175,7 @@ public Grid2D createSinogrammMoving(MovingGaussian phantom){
 						//result value at the current position in the sinogramm
 						float val = 0.f;
 						// stepsize of the integral
-						double delta = 1.d/3.d; // in mm
+						double delta = 0.5; // in mm
 						//line integral
 						for(double k = 0; k < (distance); k=k+delta){
 							

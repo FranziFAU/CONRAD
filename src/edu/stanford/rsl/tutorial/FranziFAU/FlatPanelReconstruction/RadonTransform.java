@@ -14,11 +14,12 @@ import edu.stanford.rsl.conrad.geometry.shapes.simple.Box;
 import edu.stanford.rsl.conrad.geometry.shapes.simple.PointND;
 import edu.stanford.rsl.conrad.geometry.shapes.simple.StraightLine;
 import edu.stanford.rsl.conrad.numerics.SimpleVector;
+import edu.stanford.rsl.tutorial.FranziFAU.ObjectMotion.MovingGaussian;
 
 public class RadonTransform extends Grid2D{	
 	
 	private float detectorSize;
-	private int pixel;
+	private int numberPixel;
 	private double pixelWidth;
 	private double angleWidthR;
 	private int projections;
@@ -29,7 +30,7 @@ public class RadonTransform extends Grid2D{
 		
 		//detector parameter
 		detectorSize = detectorSpacing*numberPixel;
-		pixel = numberPixel;
+		this.numberPixel = numberPixel;
 		pixelWidth = ((float)detectorSpacing );		
 		angleWidthR = (Math.PI / numberProjections);	
 		projections = numberProjections;
@@ -47,8 +48,8 @@ public class RadonTransform extends Grid2D{
 		
 		//walk over each projection
 		for(int indexProjections = 0; indexProjections < projections; indexProjections++){
-			// walk along the detector
-			for(int indexDetektor = 0; indexDetektor < pixel; indexDetektor++){
+			// walk along the detector			
+			for(int indexDetektor = 0; indexDetektor < numberPixel; indexDetektor++){
 				
 				// define the parallel lines of the detector				
 				double [] indexWorld = this.indexToPhysical(indexDetektor, indexProjections);				
@@ -116,8 +117,8 @@ public class RadonTransform extends Grid2D{
 			filtering(this);
 		}
 		
-		
-		return this;
+		Grid2D result = new Grid2D(this);
+		return result;
 	}
 	
 	

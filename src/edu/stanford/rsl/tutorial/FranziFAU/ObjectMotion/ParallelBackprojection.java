@@ -123,7 +123,7 @@ public class ParallelBackprojection extends Grid2D{
 			
 		}
 		
-		NumericPointwiseOperators.divideBy(this, (float) (numberProjections / Math.PI));
+		NumericPointwiseOperators.divideBy(this, (float) (numberProjections / scanAngle));
 			
 	}
 	

@@ -9,6 +9,10 @@ import edu.stanford.rsl.conrad.data.numeric.Grid3D;
 import edu.stanford.rsl.conrad.data.numeric.NumericGrid;
 import edu.stanford.rsl.conrad.data.numeric.NumericGridOperator;
 import edu.stanford.rsl.conrad.data.numeric.NumericPointwiseOperators;
+import edu.stanford.rsl.tutorial.FranziFAU.FlatPanelReconstruction.FilteredBP;
+import edu.stanford.rsl.tutorial.FranziFAU.FlatPanelReconstruction.RadonTransform;
+import edu.stanford.rsl.tutorial.parallel.ParallelBackprojector2D;
+import edu.stanford.rsl.tutorial.parallel.ParallelProjector2D;
 
 
 
@@ -152,19 +156,19 @@ public class GaussianBlob extends Grid2D {
 		
 		//MovingGaussian
 		double frequency = 1.3d;		
-		double [] changedMeanValue = {0.0d,0.0d};		
-		double [] changedStandardDeviation = {30.d,30.d};
+		double [] changedMeanValue = {0.0d,50.0d};		
+		double [] changedStandardDeviation = {15.d,15.d};
 		
 		//Projection
 		int numberProjections = 379;
-		double detectorSpacing = 1.3d;
+		double detectorSpacing = 1.0d;
 		int numberPixel = 500;
-		double timeFactor = 0.7d; // time associated with one projection
+		double timeFactor = 0.07d; // time associated with one projection
 		
 		//create GaussianBlob
 		GaussianBlob object = new GaussianBlob(imageWidth, imageHeight, imageSpacing, meanValue, standardDeviation);
 		object.show("GaussianBlob");	
-		
+
 		GaussianBlob changedObject = new GaussianBlob(imageWidth, imageHeight, imageSpacing, changedMeanValue, changedStandardDeviation);
 		changedObject.show("changedGaussianBlob");
 		
@@ -178,14 +182,14 @@ public class GaussianBlob extends Grid2D {
 		
 		//backproject sinogramm
 		ParallelBackprojection image = new ParallelBackprojection(object);
-		Grid2D reconstructed =  image.filteredBackprojection(sinogramm, detectorSpacing, numberProjections);
+		Grid2D reconstructed =  image.filteredBackprojection(sino1, detectorSpacing, numberProjections);
 		image.show("Backprojected image");		
 		
 		Grid2D sino2 = sinogramm.createSinogramm(reconstructed);
-		sino2.show("Sinogramm2");
+		sino2.show("Sinogramm2");		
 		
 		
-		
+	
 		// Idea 1: Look at fourier space, motion introduces high frequencies
 		//compare FFT from both sinogramms (ssd, high pass filter, usw.)
 
