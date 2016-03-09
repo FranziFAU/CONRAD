@@ -45,7 +45,7 @@ public class GaussianBlob extends Grid2D {
 			for(int height = 0; height < gauss.getHeight(); height ++){
 
 				double [] worldCoordinates = gauss.indexToPhysical(width, height);				
-				float value = gaussian2D(worldCoordinates[0], worldCoordinates[1],mean ,deviation);				
+				float value = gaussian2D(worldCoordinates[0], worldCoordinates[1],mean ,deviation);	
 				gauss.setAtIndex(width, height, value);
 			}
 		}	
@@ -57,12 +57,12 @@ public class GaussianBlob extends Grid2D {
 		double exponent = -0.5*(Math.pow((x - mean[0])/deviation[0], 2) 
 				+ Math.pow((y - mean[1])/deviation[1], 2));
 		double gaussianValue = Math.exp(exponent);
-		gaussianValue *= Math.sqrt(2*Math.PI)*deviation[0]*deviation[1];
+		gaussianValue /= Math.sqrt(2*Math.PI)*deviation[0]*deviation[1];
 		
 		return (float)gaussianValue;
 	}
 	
-	public static void gradProjectionGauss(NumericGrid gridRes,final NumericGrid grid,int value, boolean offsetleft) {
+	public static void gradProjectionGauss(NumericGrid gridRes, final NumericGrid grid, int value, boolean offsetleft) {
 		subtractOffset(gridRes,grid,grid,0,value,offsetleft);
 		gridRes.notifyAfterWrite();
 	}
@@ -103,6 +103,7 @@ public class GaussianBlob extends Grid2D {
 		float [] result = new float[sino1.getHeight()];
 		
 		for(int projectionLine = 0; projectionLine < sino1.getHeight(); projectionLine++){
+			
 			Grid1D lineSino1 = sino1.getSubGrid(projectionLine);
 			Grid1D lineSino2 = sino2.getSubGrid(projectionLine);
 			
@@ -110,6 +111,32 @@ public class GaussianBlob extends Grid2D {
 		}
 		
 		return result;
+	}
+	
+	//computes the mean of an array
+	public static float computeMean(float [] array){
+		float mean = 0;		
+		
+		for(int i = 0; i < array.length; i++){
+			mean += array[i];
+		}
+		
+		mean /= array.length;
+		
+		return mean;
+		
+	}
+	
+	public static float computeVariance(float [] array, float mean){
+		float variance = 0.f;
+		
+		for(int i = 0; i < array.length; i++){			
+			variance += (array[i]-mean)*(array[i]-mean);			
+		}
+		
+		variance /= array.length;
+		
+		return variance;
 	}
 	
 	public static void main(String[] args) {
@@ -121,31 +148,31 @@ public class GaussianBlob extends Grid2D {
 		int imageHeight = 250;
 		double[] imageSpacing = {1.0d,1.0d};		
 		double [] meanValue = {0.0d,0.0d};		
-		double [] standardDeviation = {30.d,2.d};
+		double [] standardDeviation = {15.d,15.d};
 		
 		//MovingGaussian
 		double frequency = 1.3d;		
-		double [] changedMeanValue = {0.0d,50.0d};		
-		double [] changedStandardDeviation = {30.d,2.d};
+		double [] changedMeanValue = {0.0d,0.0d};		
+		double [] changedStandardDeviation = {30.d,30.d};
 		
 		//Projection
 		int numberProjections = 379;
 		double detectorSpacing = 1.3d;
 		int numberPixel = 500;
-		double timeFactor = 0.07d; // time associated with one projection
+		double timeFactor = 0.7d; // time associated with one projection
 		
 		//create GaussianBlob
-		GaussianBlob object = new GaussianBlob(imageWidth,imageHeight,imageSpacing,	meanValue ,standardDeviation);
+		GaussianBlob object = new GaussianBlob(imageWidth, imageHeight, imageSpacing, meanValue, standardDeviation);
 		object.show("GaussianBlob");	
 		
-		GaussianBlob changedObject = new GaussianBlob(imageWidth, imageHeight,imageSpacing, changedMeanValue, changedStandardDeviation);
+		GaussianBlob changedObject = new GaussianBlob(imageWidth, imageHeight, imageSpacing, changedMeanValue, changedStandardDeviation);
 		changedObject.show("changedGaussianBlob");
 		
 		MovingGaussian movingObject = new MovingGaussian(imageWidth,imageHeight,
-				imageSpacing,meanValue ,standardDeviation,frequency, changedMeanValue,changedStandardDeviation);
+				imageSpacing, meanValue, standardDeviation, frequency, changedMeanValue, changedStandardDeviation);
 		
 		//create sinogramm of gaussianBlob
-		ParallelProjection sinogramm = new ParallelProjection(numberProjections,detectorSpacing,numberPixel,timeFactor);
+		ParallelProjection sinogramm = new ParallelProjection(numberProjections, detectorSpacing, numberPixel, timeFactor);
 		Grid2D sino1 = sinogramm.createSinogrammMoving(movingObject);
 		sino1.show("Sinogramm");
 		
@@ -197,27 +224,10 @@ public class GaussianBlob extends Grid2D {
 		
 		//Idea 3: compare each projection line of the 2 sinogramms with SSD
 		
-		float [] ssd = compareSinogrammsLinewise(sino1,sino2);
-		
-		float mean = 0;		
-		
-		for(int i = 0; i < ssd.length; i++){
-//			System.out.println(ssd[i]);
-			mean += ssd[i];
-		}		
-		
-		mean /= ssd.length;
-		
-		float variance = 0.f;
-		
-		for(int i = 0; i < ssd.length; i++){
-			
-			variance += (ssd[i]-mean)*(ssd[i]-mean);			
-		}
-		
-		variance /= ssd.length;
-		
-		System.out.println("Mean: " + mean + "  Varianz: " + variance);
+		float [] ssd = compareSinogrammsLinewise(sino1,sino2);		
+		float mean = computeMean(ssd);
+		float variance = computeVariance(ssd,mean);		
+		System.out.println("MeanSSD: " + mean + "  VarianzSSD: " + variance);
 		
 		
 //		Grid2D subtract = (Grid2D) NumericPointwiseOperators.subtractedBy(sino2, sino1);		
