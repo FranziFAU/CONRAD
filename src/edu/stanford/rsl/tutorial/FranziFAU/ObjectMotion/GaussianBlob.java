@@ -151,19 +151,19 @@ public class GaussianBlob extends Grid2D {
 		int imageWidth = 250;
 		int imageHeight = 250;
 		double[] imageSpacing = {1.0d,1.0d};		
-		double [] meanValue = {0.0d,0.0d};		
+		double [] meanValue = {0.0d,-60.0d};		
 		double [] standardDeviation = {15.d,15.d};
 		
 		//MovingGaussian
-		double frequency = 1.3d;		
-		double [] changedMeanValue = {0.0d,50.0d};		
+		double frequency = 1.3d;	// in 1/second	
+		double [] changedMeanValue = {0.0d,60.0d};		
 		double [] changedStandardDeviation = {15.d,15.d};
 		
 		//Projection
 		int numberProjections = 379;
 		double detectorSpacing = 1.0d;
 		int numberPixel = 500;
-		double timeFactor = 0.07d; // time associated with one projection
+		double timeFactor = 0.07d; // time associated with one projection in seconds
 		
 		//create GaussianBlob
 		GaussianBlob object = new GaussianBlob(imageWidth, imageHeight, imageSpacing, meanValue, standardDeviation);
@@ -231,7 +231,7 @@ public class GaussianBlob extends Grid2D {
 		float [] ssd = compareSinogrammsLinewise(sino1,sino2);		
 		float mean = computeMean(ssd);
 		float variance = computeVariance(ssd,mean);		
-		System.out.println("MeanSSD: " + mean + "  VarianzSSD: " + variance);
+		System.out.println("MeanSSD: " + mean + "  VarianzSSD: " + variance + "   Mean/Variance" + (mean/variance));
 		
 		
 //		Grid2D subtract = (Grid2D) NumericPointwiseOperators.subtractedBy(sino2, sino1);		
