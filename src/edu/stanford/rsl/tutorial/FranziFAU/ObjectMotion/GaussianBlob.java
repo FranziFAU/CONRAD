@@ -2,7 +2,9 @@ package edu.stanford.rsl.tutorial.FranziFAU.ObjectMotion;
 
 import ij.IJ;
 import ij.ImageJ;
+import edu.stanford.rsl.conrad.data.generic.datatypes.Complex;
 import edu.stanford.rsl.conrad.data.numeric.Grid1D;
+import edu.stanford.rsl.conrad.data.numeric.Grid1DComplex;
 import edu.stanford.rsl.conrad.data.numeric.Grid2D;
 import edu.stanford.rsl.conrad.data.numeric.Grid2DComplex;
 import edu.stanford.rsl.conrad.data.numeric.Grid3D;
@@ -143,6 +145,66 @@ public class GaussianBlob extends Grid2D {
 		return variance;
 	}
 	
+	public static Grid2D filterSino(Grid2D sinogramm){
+		
+		Grid2D filteredSinogramm = new Grid2D(sinogramm);
+		//construction of the ramLak filter
+		Grid1DComplex filter = new Grid1DComplex(filteredSinogramm.getSubGrid(0));
+		
+		//watch out x-axes is from 0 to - infinity and then from infinity to 0!
+		for(int n = 0; n < filter.getSize()[0]/2; n++){
+			
+			float val;
+			if(n == 0){
+				val = (float)(1.f/(4.f*1.0d));
+				filter.setRealAtIndex(n, val);
+				filter.setImagAtIndex(n, 0.f);
+			}else if((n%2) == 0){
+				val = 0.f;
+			}else{
+				val = (-(1.f/(float)(Math.pow(n*1.0d, 2)*Math.pow(Math.PI, 2))));
+			}
+			
+			if(n != 0){
+				filter.setRealAtIndex(n, val);
+				filter.setImagAtIndex(n, 0.f);
+				filter.setRealAtIndex(filter.getSize()[0]-n, val);
+				filter.setImagAtIndex(filter.getSize()[0]-n, 0.f);
+			}
+		}
+		
+		filter.transformForward();				
+		
+		//read out each line of the sinogramm and apply filtering
+		for(int s = 0; s < sinogramm.getHeight(); s++){
+			
+			Grid1DComplex line = new Grid1DComplex(filteredSinogramm.getSubGrid(s));			
+			
+			//filter the line			
+			line.transformForward();
+			
+			// multiply line with filter
+			for(int index = 0; index < line.getSize()[0]; index++){
+				
+				Complex lineVal = new Complex(line.getRealAtIndex(index),line.getImagAtIndex(index));
+				Complex filterVal = new Complex(filter.getRealAtIndex(index),filter.getImagAtIndex(index));
+				
+				Complex result = lineVal.mul(filterVal);
+				line.setRealAtIndex(index, (float)result.getReal());
+				line.setImagAtIndex(index, (float)result.getImag());
+			}
+
+			// IFT of the detector line
+			line.transformInverse();
+				
+			//save filtered line
+			for(int indexWidth = 0; indexWidth < filteredSinogramm.getWidth(); indexWidth++){
+				filteredSinogramm.setAtIndex(indexWidth, s, line.getRealAtIndex(indexWidth));
+			}		
+		}
+		return filteredSinogramm;
+	}
+	
 	public static void main(String[] args) {
 		new ImageJ();
 		
@@ -151,13 +213,13 @@ public class GaussianBlob extends Grid2D {
 		int imageWidth = 250;
 		int imageHeight = 250;
 		double[] imageSpacing = {1.0d,1.0d};		
-		double [] meanValue = {0.0d,-60.0d};		
-		double [] standardDeviation = {15.d,15.d};
+		double [] meanValue = {0.0d,-10.0d};		
+		double [] standardDeviation = {20.d,1.d};
 		
 		//MovingGaussian
-		double frequency = 1.3d;	// in 1/second	
-		double [] changedMeanValue = {0.0d,60.0d};		
-		double [] changedStandardDeviation = {15.d,15.d};
+		double frequency = 0.2d;	// in 1/second	
+		double [] changedMeanValue = {0.0d,10.0d};		
+		double [] changedStandardDeviation = {20.d,1.d};
 		
 		//Projection
 		int numberProjections = 379;
@@ -184,7 +246,14 @@ public class GaussianBlob extends Grid2D {
 		ParallelBackprojection image = new ParallelBackprojection(object);
 		Grid2D reconstructed =  image.filteredBackprojection(sino1, detectorSpacing, numberProjections);
 		image.show("Backprojected image");		
+
+/*		Grid2D filtered = filterSino(sino1);
+		filtered.show();
 		
+		ParallelBackprojector2D back = new ParallelBackprojector2D (imageWidth, imageHeight, (float)imageSpacing[0],(float)imageSpacing[1]);
+		Grid2D reconstructed = back.backprojectPixelDriven(filtered);
+		reconstructed.show();
+*/		
 		Grid2D sino2 = sinogramm.createSinogramm(reconstructed);
 		sino2.show("Sinogramm2");		
 		
@@ -224,17 +293,17 @@ public class GaussianBlob extends Grid2D {
 		float mean2 = op.sum(result2);
 		mean2 /= result2.getNumberOfElements();		
 		System.out.println(mean2);		
-*/
+
 		
 		//Idea 3: compare each projection line of the 2 sinogramms with SSD
 		
 		float [] ssd = compareSinogrammsLinewise(sino1,sino2);		
 		float mean = computeMean(ssd);
 		float variance = computeVariance(ssd,mean);		
-		System.out.println("MeanSSD: " + mean + "  VarianzSSD: " + variance + "   Mean/Variance" + (mean/variance));
+		System.out.println("MeanSSD: " + mean + "  VarianzSSD: " + variance + "  Mean/Variance:  " + (mean/variance));
 		
-		
-//		Grid2D subtract = (Grid2D) NumericPointwiseOperators.subtractedBy(sino2, sino1);		
-//		subtract.show();
+*/		
+		Grid2D subtract = (Grid2D) NumericPointwiseOperators.subtractedBy(sino2, sino1);		
+		subtract.show("Sinogramm2 - Sinogramm1");
 	}
 }

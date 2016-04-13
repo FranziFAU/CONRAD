@@ -107,7 +107,7 @@ public class ParallelBackprojection extends Grid2D{
 					
 					// value that is on the line (line equation s) 
 					//will be added to the current position of the reconstructed image					
-					double s = (imageWorld[0]*Math.cos(angleWidthR*indexProj) + imageWorld[1]*Math.sin(angleWidthR*indexProj));
+					double s = (imageWorld[0]*Math.cos(angleWidthR*indexProj) - imageWorld[1]*Math.sin(angleWidthR*indexProj));
 					
 					// back into pixel coordinate system
 					double [] sinoIndex = filteredS.physicalToIndex(s, indexProj);
