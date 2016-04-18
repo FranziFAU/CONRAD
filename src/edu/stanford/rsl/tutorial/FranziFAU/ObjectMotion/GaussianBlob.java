@@ -210,22 +210,22 @@ public class GaussianBlob extends Grid2D {
 		
 		//Parameters for all methods
 		//GaussianBlob
-		int imageWidth = 250;
-		int imageHeight = 250;
+		int imageWidth = 350;
+		int imageHeight = 350;
 		double[] imageSpacing = {1.0d,1.0d};		
-		double [] meanValue = {0.0d,-10.0d};		
-		double [] standardDeviation = {20.d,1.d};
+		double [] meanValue = {0.0d,0.0d};		
+		double [] standardDeviation = {15.d,15.d};
 		
 		//MovingGaussian
-		double frequency = 0.2d;	// in 1/second	
-		double [] changedMeanValue = {0.0d,10.0d};		
-		double [] changedStandardDeviation = {20.d,1.d};
+		double frequency = 1.0d;	// in 1/second	
+		double [] changedMeanValue = {0.0d,0.0d};		
+		double [] changedStandardDeviation = {30.d,30.d};
 		
 		//Projection
-		int numberProjections = 379;
+		int numberProjections = 2*180;
 		double detectorSpacing = 1.0d;
 		int numberPixel = 500;
-		double timeFactor = 0.07d; // time associated with one projection in seconds
+		double timeFactor = 10.0d/numberProjections; // time associated with one projection in seconds
 		
 		//create GaussianBlob
 		GaussianBlob object = new GaussianBlob(imageWidth, imageHeight, imageSpacing, meanValue, standardDeviation);
@@ -244,17 +244,11 @@ public class GaussianBlob extends Grid2D {
 		
 		//backproject sinogramm
 		ParallelBackprojection image = new ParallelBackprojection(object);
-		Grid2D reconstructed =  image.filteredBackprojection(sino1, detectorSpacing, numberProjections);
-		image.show("Backprojected image");		
-
-/*		Grid2D filtered = filterSino(sino1);
-		filtered.show();
+		Grid2D reconstruct =  image.filteredBackprojection(sino1, detectorSpacing, numberProjections);
+		image.show("Backprojected image");	
 		
-		ParallelBackprojector2D back = new ParallelBackprojector2D (imageWidth, imageHeight, (float)imageSpacing[0],(float)imageSpacing[1]);
-		Grid2D reconstructed = back.backprojectPixelDriven(filtered);
-		reconstructed.show();
-*/		
-		Grid2D sino2 = sinogramm.createSinogramm(reconstructed);
+		//create sinogramm of backprojected image
+		Grid2D sino2 = sinogramm.createSinogramm(reconstruct);
 		sino2.show("Sinogramm2");		
 		
 		
@@ -302,8 +296,9 @@ public class GaussianBlob extends Grid2D {
 		float variance = computeVariance(ssd,mean);		
 		System.out.println("MeanSSD: " + mean + "  VarianzSSD: " + variance + "  Mean/Variance:  " + (mean/variance));
 		
-*/		
+		*/
 		Grid2D subtract = (Grid2D) NumericPointwiseOperators.subtractedBy(sino2, sino1);		
 		subtract.show("Sinogramm2 - Sinogramm1");
+		
 	}
 }

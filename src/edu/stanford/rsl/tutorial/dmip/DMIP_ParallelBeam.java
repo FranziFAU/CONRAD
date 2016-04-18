@@ -163,7 +163,7 @@ public class DMIP_ParallelBeam {
 			double cosTheta = Math.cos(theta);
 			double sinTheta = Math.sin(theta);
 			// get detector direction vector
-			SimpleVector dirDetector = new SimpleVector(sinTheta,cosTheta);
+			SimpleVector dirDetector = new SimpleVector(cosTheta,sinTheta);
 			// loops over the image grid
 			for (int x = 0; x < grid.getSize()[0]; x++) {
 				for (int y = 0; y < grid.getSize()[1]; y++) {
@@ -319,7 +319,7 @@ public class DMIP_ParallelBeam {
 		
 		// 1. Create the Shepp Logan Phantom
 		SheppLogan sheppLoganPhantom = new SheppLogan(phantomSize);
-//		sheppLoganPhantom.show();	
+		sheppLoganPhantom.show();	
 		
 		// 2. Acquire forward projection images with a parallel projector // one step less because 180 an 0 degree are the same
 		Grid2D sinogram = parallel.projectRayDriven(sheppLoganPhantom, angularRange-angularStepSize, angularStepSize, detectorSize, detectorSpacing);

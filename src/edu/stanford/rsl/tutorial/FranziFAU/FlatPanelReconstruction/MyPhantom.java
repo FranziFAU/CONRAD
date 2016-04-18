@@ -80,14 +80,14 @@ public class MyPhantom extends Grid2D{
 		double[] imageSpacing = {1.0d,1.0d};		
 		double [] meanValue = {0.0d,0.0d};		
 		double [] standardDeviation = {50.d,1.d};
-		
+/*		
 		GaussianBlob object = new GaussianBlob(imageWidth, imageHeight, imageSpacing, meanValue, standardDeviation);
 		object.show("GaussianBlob");	
 		
 		Grid2D object2 = object;
 		object2.show();
 		
-	
+*/	
 //		String filenameShepp = "C:/Users/Franziska/Desktop/Shepp_logan.png";
 //		Grid3D sheppLoganVolume = ImageUtil.wrapImagePlus(IJ.openImage(filenameShepp));
 //		ImageGridBuffer allSheppLogans = new ImageGridBuffer();
@@ -104,7 +104,7 @@ public class MyPhantom extends Grid2D{
 		
 		//create sinogramm of the phantom
 		RadonTransform rad = new RadonTransform(numberProjectionsParallel,detectorSpacingParallel,numberOfPixelParallel);
-//		rad.createSinogramm(object2,false);
+		rad.createSinogramm(bild,false);
 		rad.show("Sinogramm");
 //		
 		//filtered backprojection with ramp filter		
@@ -113,10 +113,14 @@ public class MyPhantom extends Grid2D{
 //		fbp.show("Reconstruction");
 //		
 		//filtered backprojection with ram lak		
-		FilteredBP fbpRL = new FilteredBP(object2);
-		fbpRL.filteredBackProjection(rad,detectorSpacingParallel,numberProjectionsParallel,scanAngleParallel,true);
+		FilteredBP fbpRL = new FilteredBP(bild);
+		Grid2D backprojected = fbpRL.filteredBackProjection(rad,detectorSpacingParallel,numberProjectionsParallel,scanAngleParallel,true);
 		fbpRL.show("Reconstruction Ram-Lak");
 
+		Grid2D sino2 = rad.createSinogramm(backprojected, false);
+		sino2.show("sino2");
+		
+		
 //		Grid2D differenceImage = (Grid2D)NumericPointwiseOperators.subtractedBy(fbp, fbpRL);
 //		differenceImage.show("Unterschiede");
 		
