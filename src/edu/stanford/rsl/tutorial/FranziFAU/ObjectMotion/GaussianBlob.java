@@ -1,20 +1,16 @@
 package edu.stanford.rsl.tutorial.FranziFAU.ObjectMotion;
 
-import ij.IJ;
+
+
 import ij.ImageJ;
 import edu.stanford.rsl.conrad.data.generic.datatypes.Complex;
 import edu.stanford.rsl.conrad.data.numeric.Grid1D;
 import edu.stanford.rsl.conrad.data.numeric.Grid1DComplex;
 import edu.stanford.rsl.conrad.data.numeric.Grid2D;
-import edu.stanford.rsl.conrad.data.numeric.Grid2DComplex;
-import edu.stanford.rsl.conrad.data.numeric.Grid3D;
+
 import edu.stanford.rsl.conrad.data.numeric.NumericGrid;
 import edu.stanford.rsl.conrad.data.numeric.NumericGridOperator;
-import edu.stanford.rsl.conrad.data.numeric.NumericPointwiseOperators;
-import edu.stanford.rsl.tutorial.FranziFAU.FlatPanelReconstruction.FilteredBP;
-import edu.stanford.rsl.tutorial.FranziFAU.FlatPanelReconstruction.RadonTransform;
-import edu.stanford.rsl.tutorial.parallel.ParallelBackprojector2D;
-import edu.stanford.rsl.tutorial.parallel.ParallelProjector2D;
+
 
 
 
@@ -205,7 +201,7 @@ public class GaussianBlob extends Grid2D {
 		return filteredSinogramm;
 	}
 	
-	public static void main(String[] args) {
+	public static void main(String[] args)  {
 		new ImageJ();
 		
 		//Parameters for all methods
@@ -214,15 +210,15 @@ public class GaussianBlob extends Grid2D {
 		int imageHeight = 300;
 		double[] imageSpacing = {1.0d,1.0d};		
 		double [] meanValue = {0.0d,0.0d};		
-		double [] standardDeviation = {15.d,15.d};
+		double [] standardDeviation = {30.d,30.d};
 		
 		//MovingGaussian
 		double frequency = 1.0d;	// in 1/second	
 		double [] changedMeanValue = {0.0d,0.0d};		
-		double [] changedStandardDeviation = {30.d,30.d};
+		double [] changedStandardDeviation = {15.d,15.d};
 		
 		//Projection
-		int numberProjections = 6*180;
+		int numberProjections = 2*180;
 		double detectorSpacing = 1.0d;
 		int numberPixel = 500;
 		double timeFactor = 5.0d/numberProjections; // time associated with one projection in seconds
@@ -236,9 +232,24 @@ public class GaussianBlob extends Grid2D {
 		
 		MovingGaussian movingObject = new MovingGaussian(imageWidth,imageHeight,
 				imageSpacing, meanValue, standardDeviation, frequency, changedMeanValue, changedStandardDeviation);
-		
+							
+		//create sinogramm of gaussianBlob
+		ParallelProjection sinogramm = new ParallelProjection(numberProjections, detectorSpacing, numberPixel, timeFactor);
+		Grid2D sino1 = sinogramm.createSinogrammMoving(movingObject);
+		sino1.show("Sinogramm");
+
+		//backproject sinogramm
+		ParallelBackprojection image = new ParallelBackprojection(object);
+		Grid2D reconstruct =  image.filteredBackprojection(sino1, detectorSpacing, numberProjections);
+		image.show("Backprojected image");				
 	
-		Grid2D resultSino1 = new Grid2D (numberPixel, 2*numberProjections);
+		//create sinogramm of backprojected image
+		Grid2D sino2 = sinogramm.createSinogramm(reconstruct);
+		sino2.show("Sinogramm2");
+			
+
+			
+/*		Grid2D resultSino1 = new Grid2D (numberPixel, 2*numberProjections);
 		Grid2D resultSino2 = new Grid2D(numberPixel, 2*numberProjections);
 		Grid2D resultBackprojected = new Grid2D(imageWidth,2*imageHeight );
 		
@@ -247,22 +258,14 @@ public class GaussianBlob extends Grid2D {
 			if(i == 1){
 				timeFactor *= 4.0d; 
 			}
-					
-			//create sinogramm of gaussianBlob
-			ParallelProjection sinogramm = new ParallelProjection(numberProjections, detectorSpacing, numberPixel, timeFactor);
-			Grid2D sino1 = sinogramm.createSinogrammMoving(movingObject);
-			sino1.show("Sinogramm");
-			
+
 			for(int x = 0; x < sino1.getWidth(); x ++){
 				for(int y = i*sino1.getHeight(); y < (i*sino1.getHeight() + sino1.getHeight()); y ++ ){
 					resultSino1.setAtIndex(x, y, sino1.getAtIndex(x, y- i*sino1.getHeight()));
 				}
 			}
 		
-			//backproject sinogramm
-			ParallelBackprojection image = new ParallelBackprojection(object);
-			Grid2D reconstruct =  image.filteredBackprojection(sino1, detectorSpacing, numberProjections);
-			image.show("Backprojected image");	
+
 			
 			for(int x = 0; x < reconstruct.getWidth(); x ++){
 				for(int y = i*reconstruct.getHeight(); y < (i*reconstruct.getHeight() + reconstruct.getHeight()); y ++ ){
@@ -271,9 +274,7 @@ public class GaussianBlob extends Grid2D {
 			}
 			
 		
-			//create sinogramm of backprojected image
-			Grid2D sino2 = sinogramm.createSinogramm(reconstruct);
-			sino2.show("Sinogramm2");	
+	
 			
 			for(int x = 0; x < sino2.getWidth(); x ++){
 				for(int y = i*sino2.getHeight(); y < (i*sino2.getHeight() + sino2.getHeight()); y ++ ){
@@ -287,52 +288,8 @@ public class GaussianBlob extends Grid2D {
 		resultSino2.show("sino2result");
 		resultBackprojected.show("backresult");
 	
-		// Idea 1: Look at fourier space, motion introduces high frequencies
-		//compare FFT from both sinogramms (ssd, high pass filter, usw.)
-
-/*		Grid2DComplex sino1C = new Grid2DComplex(sino1);
-		sino1C.transformForward();
-		sino1C.show();
-		
-		Grid2DComplex sino2C = new Grid2DComplex(sino2);
-		sino2C.transformForward();
-		sino2C.show();
-
-		float ssd = op.weightedSSD(sino1C, sino2C, 1.0, 1.0);
-		System.out.print(ssd);
 */
-		
-		//Idea 2: Look at gradient images
-		
-/*		// compute Gradient image for sino1		
-		Grid2D result =  new Grid2D(sino1);
-		op.fill(result, 0.0f);		
-		gradProjectionGauss(result,sino1,3,true);
-		result.show("Gradient1");
-		float mean = op.sum(result);
-		mean /= result.getNumberOfElements();		
-		System.out.println(mean);	
-		
-		// compute Gradient image for sino2
-		Grid2D result2 =  new Grid2D(sino2);
-		op.fill(result2, 0.0f);		
-		gradProjectionGauss(result2,sino2,3,true);
-		result2.show("Gradient2");
-		float mean2 = op.sum(result2);
-		mean2 /= result2.getNumberOfElements();		
-		System.out.println(mean2);		
 
 		
-		//Idea 3: compare each projection line of the 2 sinogramms with SSD
-		
-		float [] ssd = compareSinogrammsLinewise(sino1,sino2);		
-		float mean = computeMean(ssd);
-		float variance = computeVariance(ssd,mean);		
-		System.out.println("MeanSSD: " + mean + "  VarianzSSD: " + variance + "  Mean/Variance:  " + (mean/variance));
-		
-		
-		Grid2D subtract = (Grid2D) NumericPointwiseOperators.subtractedBy(sino2, sino1);		
-		subtract.show("Sinogramm2 - Sinogramm1");
-		*/
 	}
 }
