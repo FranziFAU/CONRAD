@@ -2,14 +2,17 @@ package edu.stanford.rsl.tutorial.FranziFAU.ObjectMotion;
 
 
 
+import ij.IJ;
 import ij.ImageJ;
+import ij.ImagePlus;
 import edu.stanford.rsl.conrad.data.generic.datatypes.Complex;
 import edu.stanford.rsl.conrad.data.numeric.Grid1D;
 import edu.stanford.rsl.conrad.data.numeric.Grid1DComplex;
 import edu.stanford.rsl.conrad.data.numeric.Grid2D;
-
+import edu.stanford.rsl.conrad.data.numeric.Grid3D;
 import edu.stanford.rsl.conrad.data.numeric.NumericGrid;
 import edu.stanford.rsl.conrad.data.numeric.NumericGridOperator;
+import edu.stanford.rsl.conrad.utils.ImageUtil;
 
 
 
@@ -237,7 +240,17 @@ public class GaussianBlob extends Grid2D {
 		ParallelProjection sinogramm = new ParallelProjection(numberProjections, detectorSpacing, numberPixel, timeFactor);
 		Grid2D sino1 = sinogramm.createSinogrammMoving(movingObject);
 		sino1.show("Sinogramm");
-
+		
+		String title = "hallo";
+		
+		Grid3D sino13D = new Grid3D(sino1.getWidth(),sino1.getHeight(),1);
+		sino13D.setSubGrid(0, sino1);
+		
+		ImagePlus imageSino1 = ImageUtil.wrapGrid3D(sino13D, title);
+		
+		IJ.save(imageSino1, "/home/cip/medtech2011/ef58ozyd/Projektarbeit/Sino1.tif");
+			
+/*
 		//backproject sinogramm
 		ParallelBackprojection image = new ParallelBackprojection(object);
 		Grid2D reconstruct =  image.filteredBackprojection(sino1, detectorSpacing, numberProjections);
@@ -248,8 +261,7 @@ public class GaussianBlob extends Grid2D {
 		sino2.show("Sinogramm2");
 			
 
-			
-/*		Grid2D resultSino1 = new Grid2D (numberPixel, 2*numberProjections);
+		Grid2D resultSino1 = new Grid2D (numberPixel, 2*numberProjections);
 		Grid2D resultSino2 = new Grid2D(numberPixel, 2*numberProjections);
 		Grid2D resultBackprojected = new Grid2D(imageWidth,2*imageHeight );
 		
