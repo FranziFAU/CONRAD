@@ -213,18 +213,18 @@ public class GaussianBlob extends Grid2D {
 		int imageHeight = 300;
 		double[] imageSpacing = {1.0d,1.0d};		
 		double [] meanValue = {0.0d,0.0d};		
-		double [] standardDeviation = {30.d,30.d};
+		double [] standardDeviation = {15.d,15.d};
 		
 		//MovingGaussian
 		double frequency = 1.0d;	// in 1/second	
-		double [] changedMeanValue = {0.0d,0.0d};		
+		double [] changedMeanValue = {0.0d,10.0d};		
 		double [] changedStandardDeviation = {15.d,15.d};
 		
 		//Projection
-		int numberProjections = 2*180;
+		int numberProjections = 6*180;
 		double detectorSpacing = 1.0d;
 		int numberPixel = 500;
-		double timeFactor = 5.0d/numberProjections; // time associated with one projection in seconds
+		double timeFactor = 20.0d/numberProjections; // time associated with one projection in seconds
 		
 		//create GaussianBlob
 		GaussianBlob object = new GaussianBlob(imageWidth, imageHeight, imageSpacing, meanValue, standardDeviation);
@@ -241,66 +241,35 @@ public class GaussianBlob extends Grid2D {
 		Grid2D sino1 = sinogramm.createSinogrammMoving(movingObject);
 		sino1.show("Sinogramm");
 		
-		String title = "hallo";
-		
-		Grid3D sino13D = new Grid3D(sino1.getWidth(),sino1.getHeight(),1);
-		sino13D.setSubGrid(0, sino1);
-		
-		ImagePlus imageSino1 = ImageUtil.wrapGrid3D(sino13D, title);
-		
-		IJ.save(imageSino1, "/home/cip/medtech2011/ef58ozyd/Projektarbeit/Sino1.tif");
-			
-/*
 		//backproject sinogramm
-		ParallelBackprojection image = new ParallelBackprojection(object);
+/*		ParallelBackprojection image = new ParallelBackprojection(object);
 		Grid2D reconstruct =  image.filteredBackprojection(sino1, detectorSpacing, numberProjections);
 		image.show("Backprojected image");				
 	
 		//create sinogramm of backprojected image
 		Grid2D sino2 = sinogramm.createSinogramm(reconstruct);
 		sino2.show("Sinogramm2");
-			
-
-		Grid2D resultSino1 = new Grid2D (numberPixel, 2*numberProjections);
-		Grid2D resultSino2 = new Grid2D(numberPixel, 2*numberProjections);
-		Grid2D resultBackprojected = new Grid2D(imageWidth,2*imageHeight );
+*/		String title = "Gaussian is pulsating";
 		
-		for(int i = 0; i < 2; i++){
-			
-			if(i == 1){
-				timeFactor *= 4.0d; 
-			}
-
-			for(int x = 0; x < sino1.getWidth(); x ++){
-				for(int y = i*sino1.getHeight(); y < (i*sino1.getHeight() + sino1.getHeight()); y ++ ){
-					resultSino1.setAtIndex(x, y, sino1.getAtIndex(x, y- i*sino1.getHeight()));
-				}
-			}
+		Grid3D sino13D = new Grid3D(sino1.getWidth(),sino1.getHeight(),1);
+		sino13D.setSubGrid(0, sino1);		
+		ImagePlus imageSino1 = ImageUtil.wrapGrid3D(sino13D, title);
+		imageSino1.show();
+//		IJ.save(imageSino1, "/home/cip/medtech2011/ef58ozyd/Projektarbeit/2.2.3_Sino1.tif");
 		
-
-			
-			for(int x = 0; x < reconstruct.getWidth(); x ++){
-				for(int y = i*reconstruct.getHeight(); y < (i*reconstruct.getHeight() + reconstruct.getHeight()); y ++ ){
-					resultBackprojected.setAtIndex(x, y, reconstruct.getAtIndex(x, y- i*reconstruct.getHeight()));
-				}
-			}
-			
+/*		Grid3D back3D = new Grid3D(reconstruct.getWidth(),reconstruct.getHeight(),1);
+		back3D.setSubGrid(0, reconstruct);		
+		ImagePlus imageBack = ImageUtil.wrapGrid3D(back3D, title);		
+		IJ.save(imageBack, "/home/cip/medtech2011/ef58ozyd/Projektarbeit/2.2.3_Back.tif");
 		
-	
-			
-			for(int x = 0; x < sino2.getWidth(); x ++){
-				for(int y = i*sino2.getHeight(); y < (i*sino2.getHeight() + sino2.getHeight()); y ++ ){
-					resultSino2.setAtIndex(x, y, sino2.getAtIndex(x, y - i*sino2.getHeight()));
-				}
-			}
-		
-		}
-		
-		resultSino1.show("sino1result");
-		resultSino2.show("sino2result");
-		resultBackprojected.show("backresult");
-	
+		Grid3D sino23D = new Grid3D(sino2.getWidth(),sino2.getHeight(),1);
+		sino23D.setSubGrid(0, sino2);		
+		ImagePlus imageSino2 = ImageUtil.wrapGrid3D(sino23D, title);		
+		IJ.save(imageSino2, "/home/cip/medtech2011/ef58ozyd/Projektarbeit/2.2.3_Sino2.tif");
 */
+
+		System.out.print("Ende");
+
 
 		
 	}
