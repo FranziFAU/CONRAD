@@ -29,12 +29,11 @@ public class ParallelProjection extends Grid2D{
 		this.numberProjections = numberProjections;
 		this.timeFactor = timeFactor;
 		
-		this.setOrigin(-detectorSize/2,0);
+		this.setOrigin(-(detectorSize*detectorSpacing)/2.0d,0);
 		this.setSpacing(detectorSpacing,angleSpacing);
 	}
 	
-	public Grid2D createSinogramm(Grid2D phantom){
-		
+	public Grid2D createSinogramm(Grid2D phantom){		
 	
 		Box imageBox = new Box(phantom.getWidth()*phantom.getSpacing()[0],phantom.getHeight()*phantom.getSpacing()[1],2.0d);
 		imageBox.setLowerCorner(new PointND(phantom.getOrigin()[0],phantom.getOrigin()[1],-1.0));
@@ -44,26 +43,21 @@ public class ParallelProjection extends Grid2D{
 		for(int indexProjections = 0; indexProjections < numberProjections; indexProjections++){
 			// walk along the detector			
 			
-			for(int indexDetektor = 0; indexDetektor < numberPixel; indexDetektor++){
-				
-				
-				
+			for(int indexDetektor = 0; indexDetektor < numberPixel; indexDetektor++){	
+								
 				// define the parallel lines of the detector				
 				double [] indexWorld = this.indexToPhysical(indexDetektor, indexProjections);				
 				
 				double angle = angleSpacing * indexProjections;
 				double s = indexWorld[0];
 				double cos = Math.cos(angle);
-				double sin = Math.sin(angle);
-								
+				double sin = Math.sin(angle);								
 								
 				PointND p1 = new PointND(cos*s, sin*s,0.0d);
-				PointND p2 = new PointND(cos*s - sin, sin*s + cos, 0.0d);
+				PointND p2 = new PointND(cos*s - sin, sin*s + cos, 0.0d);				
 				
-				
-				StraightLine line = new StraightLine(p1,p2);				
-				
-				
+				StraightLine line = new StraightLine(p1,p2);		
+								
 				//intersection of the box and the line
 									
 				ArrayList<PointND> crossingPoints = imageBox.intersect(line);
@@ -116,8 +110,7 @@ public class ParallelProjection extends Grid2D{
 	}
 	
 	
-public Grid2D createSinogrammMoving(MovingGaussian phantom){		
-		
+public Grid2D createSinogrammMoving(MovingGaussian phantom){			
 	
 		Box imageBox = new Box(phantom.getWidth()*phantom.getSpacing()[0],phantom.getHeight()*phantom.getSpacing()[1],2.0d);
 		imageBox.setLowerCorner(new PointND(phantom.getOrigin()[0],phantom.getOrigin()[1],-1.0));
@@ -128,26 +121,21 @@ public Grid2D createSinogrammMoving(MovingGaussian phantom){
 			// walk along the detector
 			phantom.moveGaussian(indexProjections * this.timeFactor);
 		
-			for(int indexDetektor = 0; indexDetektor < numberPixel; indexDetektor++){
-				
-			
-				
+			for(int indexDetektor = 0; indexDetektor < numberPixel; indexDetektor++){			
+							
 				// define the parallel lines of the detector				
 				double [] indexWorld = this.indexToPhysical(indexDetektor, indexProjections);				
 				
 				double angle = angleSpacing * indexProjections;
 				double s = indexWorld[0];
 				double cos = Math.cos(angle);
-				double sin = Math.sin(angle);
-								
+				double sin = Math.sin(angle);								
 								
 				PointND p1 = new PointND(cos*s, sin*s,0.0d);
-				PointND p2 = new PointND(cos*s - sin, sin*s + cos, 0.0d);
+				PointND p2 = new PointND(cos*s - sin, sin*s + cos, 0.0d);				
 				
-				
-				StraightLine line = new StraightLine(p1,p2);				
-				
-				
+				StraightLine line = new StraightLine(p1,p2);		
+							
 				//intersection of the box and the line
 									
 				ArrayList<PointND> crossingPoints = imageBox.intersect(line);
