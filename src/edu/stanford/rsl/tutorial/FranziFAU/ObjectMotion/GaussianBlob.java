@@ -212,19 +212,19 @@ public class GaussianBlob extends Grid2D {
 		int imageWidth = 300;
 		int imageHeight = 300;
 		double[] imageSpacing = {1.0d,1.0d};		
-		double [] meanValue = {0.0d,0.0d};		
-		double [] standardDeviation = {15.d,15.d};
+		double [] meanValue = {0.0d,-10.0d};		
+		double [] standardDeviation = {5d,5d};
 		
 		//MovingGaussian
 		double frequency = 1.0d;	// in 1/second	
-		double [] changedMeanValue = {0.0d,0.0d};		
-		double [] changedStandardDeviation = {30.d,30.d};
+		double [] changedMeanValue = {0.0d,10.0d};		
+		double [] changedStandardDeviation = {5d,5d};
 		
 		//Projection
-		int numberProjections = 6*180;
+		int numberProjections = 2*180;
 		double detectorSpacing = 1.0d;
 		int numberPixel = 500;
-		double timeFactor = 20.0d/numberProjections; // time associated with one projection in seconds
+		double timeFactor = 85.0d/numberProjections; // time associated with one projection in seconds
 		
 		//create GaussianBlob
 		GaussianBlob object = new GaussianBlob(imageWidth, imageHeight, imageSpacing, meanValue, standardDeviation);
@@ -239,38 +239,38 @@ public class GaussianBlob extends Grid2D {
 		//create sinogramm of gaussianBlob
 		ParallelProjection sinogramm = new ParallelProjection(numberProjections, detectorSpacing, numberPixel, timeFactor);
 		Grid2D sino1 = sinogramm.createSinogrammMoving(movingObject);
-//		sino1.show("Sinogramm");
+		sino1.show("Sinogramm");
 		
 		//backproject sinogramm
 		ParallelBackprojection image = new ParallelBackprojection(object);
 		Grid2D reconstruct =  image.filteredBackprojection(sino1, detectorSpacing, numberProjections);
-//		image.show("Backprojected image");				
+		image.show("Backprojected image");				
 	
 		//create sinogramm of backprojected image
 		Grid2D sino2 = sinogramm.createSinogramm(reconstruct);
-//		sino2.show("Sinogramm2");
+		sino2.show("Sinogramm2");
 		
-		String title = "Gaussian is pulsating";		
-		Grid3D sino13D = new Grid3D(sino1.getWidth(),sino1.getHeight(),1);
-		sino13D.setSpacing(sino1.getSpacing()[0],sino1.getSpacing()[1]);
-		sino13D.setOrigin(sino1.getOrigin()[0],sino1.getOrigin()[1]);
-		sino13D.setSubGrid(0, sino1);		
-		ImagePlus imageSino1 = ImageUtil.wrapGrid3D(sino13D, title);		
-		IJ.save(imageSino1, "/home/cip/medtech2011/ef58ozyd/Projektarbeit/1.2.3_Sino1.tif");
-		
-		Grid3D back3D = new Grid3D(reconstruct.getWidth(),reconstruct.getHeight(),1);
-		back3D.setSpacing(reconstruct.getSpacing()[0],reconstruct.getSpacing()[1]);
-		back3D.setOrigin(reconstruct.getOrigin()[0],reconstruct.getOrigin()[1]);
-		back3D.setSubGrid(0, reconstruct);		
-		ImagePlus imageBack = ImageUtil.wrapGrid3D(back3D, title);		
-		IJ.save(imageBack, "/home/cip/medtech2011/ef58ozyd/Projektarbeit/1.2.3_Back.tif");
-		
-		Grid3D sino23D = new Grid3D(sino2.getWidth(),sino2.getHeight(),1);
-		sino23D.setSpacing(sino2.getSpacing()[0],sino2.getSpacing()[1]);
-		sino23D.setOrigin(sino2.getOrigin()[0],sino2.getOrigin()[1]);
-		sino23D.setSubGrid(0, sino2);		
-		ImagePlus imageSino2 = ImageUtil.wrapGrid3D(sino23D, title);		
-		IJ.save(imageSino2, "/home/cip/medtech2011/ef58ozyd/Projektarbeit/1.2.3_Sino2.tif");
+//		String title = "Gaussian is pulsating";		
+//		Grid3D sino13D = new Grid3D(sino1.getWidth(),sino1.getHeight(),1);
+//		sino13D.setSpacing(sino1.getSpacing()[0],sino1.getSpacing()[1]);
+//		sino13D.setOrigin(sino1.getOrigin()[0],sino1.getOrigin()[1]);
+//		sino13D.setSubGrid(0, sino1);		
+//		ImagePlus imageSino1 = ImageUtil.wrapGrid3D(sino13D, title);		
+//		IJ.save(imageSino1, "/home/cip/medtech2011/ef58ozyd/Projektarbeit/Simulation2/1.5_Sino1.tif");
+//		
+//		Grid3D back3D = new Grid3D(reconstruct.getWidth(),reconstruct.getHeight(),1);
+//		back3D.setSpacing(reconstruct.getSpacing()[0],reconstruct.getSpacing()[1]);
+//		back3D.setOrigin(reconstruct.getOrigin()[0],reconstruct.getOrigin()[1]);
+//		back3D.setSubGrid(0, reconstruct);		
+//		ImagePlus imageBack = ImageUtil.wrapGrid3D(back3D, title);		
+//		IJ.save(imageBack, "/home/cip/medtech2011/ef58ozyd/Projektarbeit/Simulation2/1.5_Back.tif");
+//		
+//		Grid3D sino23D = new Grid3D(sino2.getWidth(),sino2.getHeight(),1);
+//		sino23D.setSpacing(sino2.getSpacing()[0],sino2.getSpacing()[1]);
+//		sino23D.setOrigin(sino2.getOrigin()[0],sino2.getOrigin()[1]);
+//		sino23D.setSubGrid(0, sino2);		
+//		ImagePlus imageSino2 = ImageUtil.wrapGrid3D(sino23D, title);		
+//		IJ.save(imageSino2, "/home/cip/medtech2011/ef58ozyd/Projektarbeit/Simulation2/1.5_Sino2.tif");
 
 
 		System.out.print("Ende");
