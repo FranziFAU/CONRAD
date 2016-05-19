@@ -73,21 +73,21 @@ public class MovingGaussian extends GaussianBlob {
 
 	
 	public static void main(String[] args) {
-		new ImageJ();		
-		int imageWidth = 128;
-		int imageHeight = 128;
-		double[] imageSpacing = {1.0d,1.0d};		
-		double [] meanValue = {0.0d,0.0d};		
-		double [] standardDeviation = {5.d,5.d};
-		double frequency = 1.d;		
-		double [] newmeanValue = {-10.0d,0.0d};		
-		double [] newstandardDeviation = {5.d,5.d};
-		
-		MovingGaussian gauss = new MovingGaussian(imageWidth,imageHeight,imageSpacing,	meanValue ,standardDeviation, frequency,newmeanValue, newstandardDeviation);
-		
-		gauss.show("ursprünglich");	
-		gauss.moveGaussian(0.7);
-		gauss.show("bewegt");
+//		new ImageJ();		
+//		int imageWidth = 128;
+//		int imageHeight = 128;
+//		double[] imageSpacing = {1.0d,1.0d};		
+//		double [] meanValue = {0.0d,0.0d};		
+//		double [] standardDeviation = {5.d,5.d};
+//		double frequency = 1.d;		
+//		double [] newmeanValue = {-10.0d,0.0d};		
+//		double [] newstandardDeviation = {5.d,5.d};
+//		
+//		MovingGaussian gauss = new MovingGaussian(imageWidth,imageHeight,imageSpacing,	meanValue ,standardDeviation, frequency,newmeanValue, newstandardDeviation);
+//		
+//		gauss.show("ursprünglich");	
+//		gauss.moveGaussian(0.7);
+//		gauss.show("bewegt");
 
 	}
 
