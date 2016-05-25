@@ -13,6 +13,7 @@ import edu.stanford.rsl.conrad.data.numeric.Grid3D;
 import edu.stanford.rsl.conrad.data.numeric.NumericGrid;
 import edu.stanford.rsl.conrad.data.numeric.NumericGridOperator;
 import edu.stanford.rsl.conrad.utils.ImageUtil;
+import edu.stanford.rsl.tutorial.parallel.ParallelProjector2D;
 
 
 
@@ -204,34 +205,46 @@ public class GaussianBlob extends Grid2D {
 		return filteredSinogramm;
 	}
 	
-	public static void main(String[] args)  {
+	public static void main(String[] args)  {		
+		
 		new ImageJ();
 		
+		//Loading Trajcectory
+		
+		String filename = "/home/cip/medtech2011/ef58ozyd/Projektarbeit/Trajectory.tif";
+		Grid2D trajectory = ImageUtil.wrapImagePlus(IJ.openImage(filename)).getSubGrid(0);
+		trajectory.show("Trajectory");
+		
 		//Parameters for all methods
-		//GaussianBlob
+	
 		int imageWidth = 300;
 		int imageHeight = 300;
-		double[] imageSpacing = {1.0d,1.0d};		
-		double [] meanValue = {0.0d,-10.0d};		
-		double [] standardDeviation = {5d,5d};
-		
-		//MovingGaussian
-		double frequency = 1.0d;	// in 1/second	
-		double [] changedMeanValue = {0.0d,10.0d};		
-		double [] changedStandardDeviation = {5d,5d};
+		double[] imageSpacing = {1.0d,1.0d};
 		
 		//Projection
 		int numberProjections = 2*180;
 		double detectorSpacing = 1.0d;
 		int numberPixel = 500;
-		double timeFactor = 55.0d/numberProjections; // time associated with one projection in seconds
+		double timeFactor = 23.0d/numberProjections; // time associated with one projection in seconds		
 		
+		double frequency = 1.0d;	// in 1/second	
+		//
+		//GaussianBlob pulsating
+		
+		double [] meanValue = {0.0d,0.0d};		
+		double [] standardDeviation = {30.0d,30.0d};
+		
+		//MovingGaussian
+
+		double [] changedMeanValue = {0.0d,0.0d};		
+		double [] changedStandardDeviation = {15.0d,15.0d};			
+				
 		//create GaussianBlob
 		GaussianBlob object = new GaussianBlob(imageWidth, imageHeight, imageSpacing, meanValue, standardDeviation);
-//		object.show("GaussianBlob");	
+		object.show("GaussianBlob");	
 
 		GaussianBlob changedObject = new GaussianBlob(imageWidth, imageHeight, imageSpacing, changedMeanValue, changedStandardDeviation);
-//		changedObject.show("changedGaussianBlob");
+		changedObject.show("changedGaussianBlob");
 		
 		MovingGaussian movingObject = new MovingGaussian(imageWidth,imageHeight,
 				imageSpacing, meanValue, standardDeviation, frequency, changedMeanValue, changedStandardDeviation);
@@ -250,32 +263,109 @@ public class GaussianBlob extends Grid2D {
 		Grid2D sino2 = sinogramm.createSinogramm(reconstruct);
 		sino2.show("Sinogramm2");
 		
-		String title = "Gaussian is pulsating";		
-		Grid3D sino13D = new Grid3D(sino1.getWidth(),sino1.getHeight(),1);
-		sino13D.setSpacing(sino1.getSpacing()[0],sino1.getSpacing()[1]);
-		sino13D.setOrigin(sino1.getOrigin()[0],sino1.getOrigin()[1]);
-		sino13D.setSubGrid(0, sino1);		
-		ImagePlus imageSino1 = ImageUtil.wrapGrid3D(sino13D, title);		
-		IJ.save(imageSino1, "/home/cip/medtech2011/ef58ozyd/Projektarbeit/Simulation2/2.8_Sino1.tif");
 		
-		Grid3D back3D = new Grid3D(reconstruct.getWidth(),reconstruct.getHeight(),1);
-		back3D.setSpacing(reconstruct.getSpacing()[0],reconstruct.getSpacing()[1]);
-		back3D.setOrigin(reconstruct.getOrigin()[0],reconstruct.getOrigin()[1]);
-		back3D.setSubGrid(0, reconstruct);		
-		ImagePlus imageBack = ImageUtil.wrapGrid3D(back3D, title);		
-		IJ.save(imageBack, "/home/cip/medtech2011/ef58ozyd/Projektarbeit/Simulation2/2.8_Back.tif");
+		//saving the images	
+
 		
-		Grid3D sino23D = new Grid3D(sino2.getWidth(),sino2.getHeight(),1);
-		sino23D.setSpacing(sino2.getSpacing()[0],sino2.getSpacing()[1]);
-		sino23D.setOrigin(sino2.getOrigin()[0],sino2.getOrigin()[1]);
-		sino23D.setSubGrid(0, sino2);		
-		ImagePlus imageSino2 = ImageUtil.wrapGrid3D(sino23D, title);		
-		IJ.save(imageSino2, "/home/cip/medtech2011/ef58ozyd/Projektarbeit/Simulation2/2.8_Sino2.tif");
+//		String title = "Gaussian is pulsating";		
+//		Grid3D sino13D = new Grid3D(sino1.getWidth(),sino1.getHeight(),1);
+//		sino13D.setSpacing(sino1.getSpacing()[0],sino1.getSpacing()[1]);
+//		sino13D.setOrigin(sino1.getOrigin()[0],sino1.getOrigin()[1]);
+//		sino13D.setSubGrid(0, sino1);		
+//		ImagePlus imageSino1 = ImageUtil.wrapGrid3D(sino13D, title);		
+//		IJ.save(imageSino1, "/home/cip/medtech2011/ef58ozyd/Projektarbeit/Simulation2/2.8_Sino1.tif");
+//		
+//		Grid3D back3D = new Grid3D(reconstruct.getWidth(),reconstruct.getHeight(),1);
+//		back3D.setSpacing(reconstruct.getSpacing()[0],reconstruct.getSpacing()[1]);
+//		back3D.setOrigin(reconstruct.getOrigin()[0],reconstruct.getOrigin()[1]);
+//		back3D.setSubGrid(0, reconstruct);		
+//		ImagePlus imageBack = ImageUtil.wrapGrid3D(back3D, title);		
+//		IJ.save(imageBack, "/home/cip/medtech2011/ef58ozyd/Projektarbeit/Simulation2/2.8_Back.tif");
+//		
+//		Grid3D sino23D = new Grid3D(sino2.getWidth(),sino2.getHeight(),1);
+//		sino23D.setSpacing(sino2.getSpacing()[0],sino2.getSpacing()[1]);
+//		sino23D.setOrigin(sino2.getOrigin()[0],sino2.getOrigin()[1]);
+//		sino23D.setSubGrid(0, sino2);		
+//		ImagePlus imageSino2 = ImageUtil.wrapGrid3D(sino23D, title);		
+//		IJ.save(imageSino2, "/home/cip/medtech2011/ef58ozyd/Projektarbeit/Simulation2/2.8_Sino2.tif");
+		
+		
+		//Gaussian Blob offset		
+		
+		double sigmaC = (standardDeviation[0] + changedStandardDeviation[0])/2;
+		double ln = sigmaC / standardDeviation[0];	
+			
+	
+		double shift = Math.sqrt(2) + Math.sqrt(2 - 2 * Math.log(ln));
+		shift *= sigmaC;
+		System.out.println("shift: " + shift);
+		System.out.println("sigmaC: " + sigmaC);
+		
+		double [] meanValueOff = {0.0d, -shift};
+		double [] changedMeanValueOff = {0.0d,shift};
+		double [] standardDeviationOff = {sigmaC, sigmaC};
+		double [] changedStandardDeviationOff = {sigmaC, sigmaC};
 
+		GaussianBlob objectOff = new GaussianBlob(imageWidth, imageHeight, imageSpacing, meanValueOff, standardDeviationOff);
+		objectOff.show("Off");
+		
+		GaussianBlob changedObjectOff = new GaussianBlob(imageWidth, imageHeight, imageSpacing, changedMeanValueOff, changedStandardDeviationOff);
+		changedObjectOff.show("Off2");
+		
+		MovingGaussian movingObjectOff = new MovingGaussian(imageWidth,imageHeight,
+				imageSpacing, meanValueOff, standardDeviationOff, frequency, changedMeanValueOff, changedStandardDeviationOff);		
 
+		//create sinogramm of gaussianBlob
+		ParallelProjection sinogrammOff = new ParallelProjection(numberProjections, detectorSpacing, numberPixel, timeFactor);
+		Grid2D sino1Off = sinogrammOff.createSinogrammMoving(movingObjectOff);
+		sino1Off.show("SinogrammOff");
+		
+		//backproject sinogramm
+		ParallelBackprojection imageOff = new ParallelBackprojection(objectOff);
+		Grid2D reconstructOff =  imageOff.filteredBackprojection(sino1Off, detectorSpacing, numberProjections);
+		imageOff.show("Backprojected imageOff");				
+	
+		//create sinogramm of backprojected image
+		Grid2D sino2Off = sinogramm.createSinogramm(reconstructOff);
+		sino2Off.show("Sinogramm2Off");		
+		
+		//Design trajectory
+		
+//		Grid2D trajectory = new Grid2D(imageWidth, imageHeight);
+//		trajectory.setSpacing(imageSpacing);
+//		trajectory.setOrigin((-((imageWidth)*imageSpacing[0])/2),(-((imageHeight)*imageSpacing[1])/2));		
+//		double [] idx = {0.0d,Math.sqrt(2)*sigmaC};
+//		double [] tmp = trajectory.physicalToIndex(idx[0], idx[1]);
+//		int [] pixel = {(int)Math.floor(tmp[0]),(int)Math.floor(tmp[1])};
+//		trajectory.setValue(1.0f, pixel);		
+//		trajectory.show();			
+//		ParallelProjection sinogrammT = new ParallelProjection(numberProjections, detectorSpacing, numberPixel, timeFactor);
+//		Grid2D traj = sinogrammT.createSinogramm(trajectory);
+//		traj.show("Result");		
+//		String titleTrajectory = "Trajectory";		
+//		Grid3D trajectory3D = new Grid3D(traj.getWidth(),traj.getHeight(),1);
+//		trajectory3D.setSpacing(traj.getSpacing()[0],traj.getSpacing()[1]);
+//		trajectory3D.setOrigin(traj.getOrigin()[0],traj.getOrigin()[1]);
+//		trajectory3D.setSubGrid(0, traj);
+//		ImagePlus trajectoryImg = ImageUtil.wrapGrid3D(trajectory3D, titleTrajectory);
+//		IJ.save(trajectoryImg,"/home/cip/medtech2011/ef58ozyd/Projektarbeit/Trajectory.tif");
+		
+		
+		float [] pulsating = new float[numberProjections];
+		float [] offset = new float[numberProjections];
+		
+		for(int x = 0; x < trajectory.getWidth(); x++){
+			for(int y = 0; y < trajectory.getHeight();y++){
+				if(trajectory.getAtIndex(x, y) != 0.f){
+					pulsating[y] = sinogramm.getAtIndex(x, y);
+					offset[y] = sinogrammOff.getAtIndex(x, y);
+				}
+			}
+		}
+	
+		
+		
 		System.out.print("Ende");
-
-
 		
 	}
 }
