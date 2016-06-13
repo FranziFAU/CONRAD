@@ -120,7 +120,7 @@ public class GaussianBlob extends Grid2D {
 		int imageWidth = 300;
 		int imageHeight = 300;
 		double[] imageSpacing = { 1.0d, 1.0d };
-		double sigma = 3.d;
+		double sigma = 10.d;
 		boolean writeFFT = true;
 		boolean saveImages = false;
 
@@ -128,19 +128,14 @@ public class GaussianBlob extends Grid2D {
 		int numberProjections = 2 * 180;
 		double detectorSpacing = 1.0d;
 		int numberPixel = 500;
-		double timeFactor = 60.0d / numberProjections; // time associated with
-														// one projection in
-														// seconds
+		double timeFactor = 10.0d / numberProjections; // time associated with one projection in seconds
 
 		double frequency = 1.0d; // in 1/second
-		//
+		
 		// GaussianBlob pulsating
 
 		double[] meanValue = { 0.0d, 0.0d };
 		double[] standardDeviation = { 40.0d, 40.0d };
-
-		// MovingGaussian
-
 		double[] changedMeanValue = { 0.0d, 0.0d };
 		double[] changedStandardDeviation = { 5.0d, 5.0d };
 
@@ -176,11 +171,9 @@ public class GaussianBlob extends Grid2D {
 		// Gaussian Blob offset
 
 		double sigmaC = (standardDeviation[0] + changedStandardDeviation[0]) / 2;
-
 		double shift = standardDeviation[0] - sigmaC;
 
 		System.out.println("shift: " + shift);
-
 		System.out.println("sigmaC: " + sigmaC);
 
 		double[] meanValueOff = { 0.0d, -shift };
