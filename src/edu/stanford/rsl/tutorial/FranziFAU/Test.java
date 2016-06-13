@@ -21,8 +21,9 @@ public class Test {
 		double[] imageSpacing = {1.0d,1.0d};		
 		double [] meanValue = {0.0d,0.0d};		
 		double [] standardDeviation = {15.d,15.d};
+		double sigma = 5.d;
 		
-		GaussianBlob object = new GaussianBlob(imageWidth, imageHeight, imageSpacing, meanValue, standardDeviation);
+		GaussianBlob object = new GaussianBlob(imageWidth, imageHeight, imageSpacing, meanValue, standardDeviation,sigma);
 		Grid2D bild = object;
 		
 		String bildString = bild.toString();
@@ -196,6 +197,32 @@ public class Test {
 		}
 		
 		return result;
+	}
+	
+		//computes the mean of an array
+	public static float computeMean(float [] array){
+		float mean = 0;		
+		
+		for(int i = 0; i < array.length; i++){
+			mean += array[i];
+		}
+		
+		mean /= array.length;
+		
+		return mean;
+		
+	}
+	
+	public static float computeVariance(float [] array, float mean){
+		float variance = 0.f;
+		
+		for(int i = 0; i < array.length; i++){			
+			variance += (array[i]-mean)*(array[i]-mean);			
+		}
+		
+		variance /= array.length;
+		
+		return variance;
 	}
 	
 	

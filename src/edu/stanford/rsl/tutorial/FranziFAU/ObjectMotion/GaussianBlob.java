@@ -9,6 +9,8 @@ import java.io.IOException;
 import ij.IJ;
 import ij.ImageJ;
 import ij.ImagePlus;
+import ij.plugin.filter.GaussianBlur;
+import ij.process.FloatProcessor;
 import edu.stanford.rsl.conrad.data.generic.datatypes.Complex;
 import edu.stanford.rsl.conrad.data.numeric.Grid1D;
 import edu.stanford.rsl.conrad.data.numeric.Grid1DComplex;
@@ -27,7 +29,7 @@ public class GaussianBlob extends Grid2D {
 	protected double[] meanValue;	
 	protected double [] standardDeviation;	
 	
-	public GaussianBlob(int imageWidth, int imageHeight, double [] imageSpacing, double [] meanValue, double [] standardDeviation){
+	public GaussianBlob(int imageWidth, int imageHeight, double [] imageSpacing, double [] meanValue, double [] standardDeviation,double sigma){
 		
 		// create Image with the desired size
 		super(imageWidth, imageHeight);
@@ -36,7 +38,7 @@ public class GaussianBlob extends Grid2D {
 		this.meanValue = meanValue;		
 		this.standardDeviation = standardDeviation;
 		// call Initialization function
-		initializeGauss(this, meanValue, standardDeviation);
+		initializeGauss(this, meanValue, standardDeviation,sigma);
 	}
 	
 	public double [] getMeanValue(){
@@ -48,7 +50,7 @@ public class GaussianBlob extends Grid2D {
 	}
 	
 	// design Gaussian Blob with the given Parameters
-	protected void initializeGauss(GaussianBlob gauss, double [] mean, double [] deviation){
+	protected void initializeGauss(GaussianBlob gauss, double [] mean, double [] deviation,double sigma){
 	
 		//Set Pixel Values of the Gaussian
 		for(int width = 0; width < gauss.getWidth(); width ++){
@@ -58,7 +60,22 @@ public class GaussianBlob extends Grid2D {
 				float value = gaussian2D(worldCoordinates[0], worldCoordinates[1],mean ,deviation);	
 				gauss.setAtIndex(width, height, value);
 			}
-		}	
+		}		
+		
+		Grid2D blurred = gaussianFilter(gauss, sigma);
+		
+		
+		if(blurred.getWidth() != gauss.getWidth() || blurred.getHeight() != gauss.getHeight()){
+			System.out.println("Falsch");
+		}
+		
+		for(int width = 0; width < gauss.getWidth(); width++){
+			for(int height = 0; height < gauss.getHeight(); height ++){
+				gauss.setAtIndex(width, height, blurred.getAtIndex(width, height));
+			}
+		}
+		
+		
 	}
 	
 	//Compute Value of the 2D Gaussian for the given position
@@ -76,31 +93,16 @@ public class GaussianBlob extends Grid2D {
 
 	}
 	
-	//computes the mean of an array
-	public static float computeMean(float [] array){
-		float mean = 0;		
-		
-		for(int i = 0; i < array.length; i++){
-			mean += array[i];
-		}
-		
-		mean /= array.length;
-		
-		return mean;
-		
+	public static Grid2D gaussianFilter(Grid2D noisy, double sigma){
+		FloatProcessor fp = ImageUtil.wrapGrid2D(new Grid2D(noisy));
+		GaussianBlur gb = new GaussianBlur();
+
+//		System.out.println("Gaussian filtering.");
+		gb.blurFloat(fp, sigma, sigma, 0.01);
+
+		return ImageUtil.wrapImageProcessor(fp);
 	}
-	
-	public static float computeVariance(float [] array, float mean){
-		float variance = 0.f;
-		
-		for(int i = 0; i < array.length; i++){			
-			variance += (array[i]-mean)*(array[i]-mean);			
-		}
-		
-		variance /= array.length;
-		
-		return variance;
-	}
+
 	
 
 	
@@ -119,34 +121,38 @@ public class GaussianBlob extends Grid2D {
 		int imageWidth = 300;
 		int imageHeight = 300;
 		double[] imageSpacing = {1.0d,1.0d};
+		double sigma = 20.d;
 		
 		//Projection
 		int numberProjections = 2*180;
 		double detectorSpacing = 1.0d;
 		int numberPixel = 500;
-		double timeFactor = 18.0d/numberProjections; // time associated with one projection in seconds		
+		double timeFactor = 50.0d/numberProjections; // time associated with one projection in seconds		
 		
 		double frequency = 1.0d;	// in 1/second	
 		//
 		//GaussianBlob pulsating
 		
 		double [] meanValue = {0.0d,0.0d};		
-		double [] standardDeviation = {30.0d,30.0d};
+		double [] standardDeviation = {40.0d,40.0d};
 		
 		//MovingGaussian
 
 		double [] changedMeanValue = {0.0d,0.0d};		
-		double [] changedStandardDeviation = {15.0d,15.0d};			
+		double [] changedStandardDeviation = {5.0d,5.0d};			
 				
 //		//create GaussianBlob
-		GaussianBlob object = new GaussianBlob(imageWidth, imageHeight, imageSpacing, meanValue, standardDeviation);
+		GaussianBlob object = new GaussianBlob(imageWidth, imageHeight, imageSpacing, meanValue, standardDeviation,sigma);
 //		object.show("GaussianBlob");	
+	
 
-		GaussianBlob changedObject = new GaussianBlob(imageWidth, imageHeight, imageSpacing, changedMeanValue, changedStandardDeviation);
+		GaussianBlob changedObject = new GaussianBlob(imageWidth, imageHeight, imageSpacing, changedMeanValue, changedStandardDeviation,sigma);
 //		changedObject.show("changedGaussianBlob");
 		
 		MovingGaussian movingObject = new MovingGaussian(imageWidth,imageHeight,
-				imageSpacing, meanValue, standardDeviation, frequency, changedMeanValue, changedStandardDeviation);
+				imageSpacing, meanValue, standardDeviation, frequency, changedMeanValue, changedStandardDeviation,sigma);
+		
+		
 							
 		//create sinogramm of gaussianBlob
 		ParallelProjection sinogramm = new ParallelProjection(numberProjections, detectorSpacing, numberPixel, timeFactor);
@@ -156,27 +162,27 @@ public class GaussianBlob extends Grid2D {
 		//backproject sinogramm
 		ParallelBackprojection image = new ParallelBackprojection(object);
 		Grid2D reconstruct =  image.filteredBackprojection(sino1, detectorSpacing, numberProjections);
-//		image.show("Backprojected image");				
+		image.show("Backprojected image");				
 	
 		//create sinogramm of backprojected image
-		Grid2D sino2 = sinogramm.createSinogramm(reconstruct);
+//		Grid2D sino2 = sinogramm.createSinogramm(reconstruct);
 //		sino2.show("Sinogramm2");
 		
 		
 		//saving the images	
 
-		String title = "Pulsating";
-		
-		ImagePlus imageSino1 = ImageUtil.wrapGrid(sino1, title);		
-		IJ.save(imageSino1, "/home/cip/medtech2011/ef58ozyd/Projektarbeit/Simulation4/18 Perioden/1.7_Sino1.tif");
-		
-		
-		ImagePlus imageBack = ImageUtil.wrapGrid(reconstruct, title);		
-		IJ.save(imageBack, "/home/cip/medtech2011/ef58ozyd/Projektarbeit/Simulation4/18 Perioden/1.7_Back.tif");
-		
-		
-		ImagePlus imageSino2 = ImageUtil.wrapGrid(sino2, title);		
-		IJ.save(imageSino2, "/home/cip/medtech2011/ef58ozyd/Projektarbeit/Simulation4/18 Perioden/1.7_Sino2.tif");
+//		String title = "Pulsating";
+//		
+//		ImagePlus imageSino1 = ImageUtil.wrapGrid(sino1, title);		
+//		IJ.save(imageSino1, "/home/cip/medtech2011/ef58ozyd/Projektarbeit/Simulation4/18 Perioden/1.7_Sino1.tif");
+//		
+//		
+//		ImagePlus imageBack = ImageUtil.wrapGrid(reconstruct, title);		
+//		IJ.save(imageBack, "/home/cip/medtech2011/ef58ozyd/Projektarbeit/Simulation4/18 Perioden/1.7_Back.tif");
+//		
+//		
+//		ImagePlus imageSino2 = ImageUtil.wrapGrid(sino2, title);		
+//		IJ.save(imageSino2, "/home/cip/medtech2011/ef58ozyd/Projektarbeit/Simulation4/18 Perioden/1.7_Sino2.tif");
 		
 		
 		//Gaussian Blob offset		
@@ -184,9 +190,10 @@ public class GaussianBlob extends Grid2D {
 		double sigmaC = (standardDeviation[0] + changedStandardDeviation[0])/2;
 //		double ln = sigmaC / standardDeviation[0];	
 			
-	
+		
 
 		double shift = standardDeviation[0] - sigmaC;
+	
 		System.out.println("shift: " + shift);
 
 		System.out.println("sigmaC: " + sigmaC);
@@ -196,14 +203,14 @@ public class GaussianBlob extends Grid2D {
 		double [] standardDeviationOff = {sigmaC, sigmaC};
 		double [] changedStandardDeviationOff = {sigmaC, sigmaC};
 
-		GaussianBlob objectOff = new GaussianBlob(imageWidth, imageHeight, imageSpacing, meanValueOff, standardDeviationOff);
+		GaussianBlob objectOff = new GaussianBlob(imageWidth, imageHeight, imageSpacing, meanValueOff, standardDeviationOff,sigma);
 //		objectOff.show("Off");
 		
-		GaussianBlob changedObjectOff = new GaussianBlob(imageWidth, imageHeight, imageSpacing, changedMeanValueOff, changedStandardDeviationOff);
+		GaussianBlob changedObjectOff = new GaussianBlob(imageWidth, imageHeight, imageSpacing, changedMeanValueOff, changedStandardDeviationOff,sigma);
 //		changedObjectOff.show("Off2");
 		
 		MovingGaussian movingObjectOff = new MovingGaussian(imageWidth,imageHeight,
-				imageSpacing, meanValueOff, standardDeviationOff, frequency, changedMeanValueOff, changedStandardDeviationOff);		
+				imageSpacing, meanValueOff, standardDeviationOff, frequency, changedMeanValueOff, changedStandardDeviationOff,sigma);		
 
 		//create sinogramm of gaussianBlob
 		ParallelProjection sinogrammOff = new ParallelProjection(numberProjections, detectorSpacing, numberPixel, timeFactor);
@@ -213,24 +220,24 @@ public class GaussianBlob extends Grid2D {
 		//backproject sinogramm
 		ParallelBackprojection imageOff = new ParallelBackprojection(objectOff);
 		Grid2D reconstructOff =  imageOff.filteredBackprojection(sino1Off, detectorSpacing, numberProjections);
-//		imageOff.show("Backprojected imageOff");				
+		imageOff.show("Backprojected imageOff");				
 	
 		//create sinogramm of backprojected image
-		Grid2D sino2Off = sinogrammOff.createSinogramm(reconstructOff);
+//		Grid2D sino2Off = sinogrammOff.createSinogramm(reconstructOff);
 //		sino2Off.show("Sinogramm2Off");	
 		
 		String titleOff = "Offset";
 		
-		ImagePlus imageSino1Off = ImageUtil.wrapGrid(sino1Off, titleOff);		
-		IJ.save(imageSino1Off, "/home/cip/medtech2011/ef58ozyd/Projektarbeit/Simulation4/18 Perioden/2.7_sino1.tif");
-		
-		
-		ImagePlus imageBackOff = ImageUtil.wrapGrid(reconstructOff, titleOff);		
-		IJ.save(imageBackOff, "/home/cip/medtech2011/ef58ozyd/Projektarbeit/Simulation4/18 Perioden/2.7_back.tif");
-		
-		
-		ImagePlus imageSino2Off = ImageUtil.wrapGrid(sino2Off, title);		
-		IJ.save(imageSino2Off, "/home/cip/medtech2011/ef58ozyd/Projektarbeit/Simulation4/18 Perioden/2.7_sino2.tif");
+//		ImagePlus imageSino1Off = ImageUtil.wrapGrid(sino1Off, titleOff);		
+//		IJ.save(imageSino1Off, "/home/cip/medtech2011/ef58ozyd/Projektarbeit/Simulation4/23 Perioden/3.4_sino1.tif");
+//		
+//		
+//		ImagePlus imageBackOff = ImageUtil.wrapGrid(reconstructOff, titleOff);		
+//		IJ.save(imageBackOff, "/home/cip/medtech2011/ef58ozyd/Projektarbeit/Simulation4/23 Perioden/3.4_back.tif");
+//		
+//		
+//		ImagePlus imageSino2Off = ImageUtil.wrapGrid(sino2Off, titleOff);		
+//		IJ.save(imageSino2Off, "/home/cip/medtech2011/ef58ozyd/Projektarbeit/Simulation4/23 Perioden/3.4_sino2.tif");
 		
 		//Design trajectory
 		
@@ -252,60 +259,60 @@ public class GaussianBlob extends Grid2D {
 //		IJ.save(trajectoryImg,"/home/cip/medtech2011/ef58ozyd/Projektarbeit/Trajectory2.tif");
 		
 		
-		float [] pulsating = new float[numberProjections];
-		float [] offset = new float[numberProjections];
-		
-		
-		for(int y = 0; y < trajectoryImage.getHeight();y++){
-			pulsating[y] = 0.f;
-			for(int x = 1; x < trajectoryImage.getWidth(); x++){			
-				if(trajectoryImage.getAtIndex(x, y) > trajectoryImage.getAtIndex(x-1, y)){
-					
-					pulsating[y] = sino2.getAtIndex(x, y);
-				
-				}
-				
-				if(trajectoryImage.getAtIndex(x, y) > trajectoryImage.getAtIndex(x-1, y)){				
-					
-					offset[y] = sino2Off.getAtIndex(x, y);
-					
-				}
-			}
-		}
+//		float [] pulsating = new float[numberProjections];
+//		float [] offset = new float[numberProjections];
+//		
+//		
+//		for(int y = 0; y < trajectoryImage.getHeight();y++){
+//			pulsating[y] = 0.f;
+//			for(int x = 1; x < trajectoryImage.getWidth(); x++){			
+//				if(trajectoryImage.getAtIndex(x, y) > trajectoryImage.getAtIndex(x-1, y)){
+//					
+//					pulsating[y] = sino2.getAtIndex(x, y);
+//				
+//				}
+//				
+//				if(trajectoryImage.getAtIndex(x, y) > trajectoryImage.getAtIndex(x-1, y)){				
+//					
+//					offset[y] = sino2Off.getAtIndex(x, y);
+//					
+//				}
+//			}
+//		}
 		
 
 
 
 	
-		String filename = "Pulsating.txt";
-
-		BufferedWriter outputWriter = null;
-		outputWriter = new BufferedWriter(new FileWriter(filename));
-
-		for(int j = 0; j < numberProjections; j++){
-			String b = Double.toString(pulsating[j]);
-			outputWriter.write(b);
-			outputWriter.write(' ');
-			
-		}
-		outputWriter.close();
+//		String filename = "Pulsating.txt";
+//
+//		BufferedWriter outputWriter = null;
+//		outputWriter = new BufferedWriter(new FileWriter(filename));
+//
+//		for(int j = 0; j < numberProjections; j++){
+//			String b = Double.toString(pulsating[j]);
+//			outputWriter.write(b);
+//			outputWriter.write(' ');
+//			
+//		}
+//		outputWriter.close();
 		
 
 		
-		String filenameOff = "Offset.txt";
-		
-		BufferedWriter outputWriterOff = null;
-		outputWriterOff = new BufferedWriter(new FileWriter(filenameOff));
-		
-		
-		for(int j = 0; j < numberProjections; j++){
-			String Off = Double.toString(offset[j]);
-			outputWriterOff.write(Off);
-			outputWriterOff.write(' ');
-			
-			
-		}
-		outputWriterOff.close();
+//		String filenameOff = "Offset.txt";
+//		
+//		BufferedWriter outputWriterOff = null;
+//		outputWriterOff = new BufferedWriter(new FileWriter(filenameOff));
+//		
+//		
+//		for(int j = 0; j < numberProjections; j++){
+//			String Off = Double.toString(offset[j]);
+//			outputWriterOff.write(Off);
+//			outputWriterOff.write(' ');
+//			
+//			
+//		}
+//		outputWriterOff.close();
 		
 		System.out.print("Ende");
 		

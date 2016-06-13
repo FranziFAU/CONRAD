@@ -10,18 +10,20 @@ public class MovingGaussian extends GaussianBlob {
 	private double frequency; // how often per projection
 	private double [] changedMeanValue;
 	private double [] changedStandardDeviation;	
+	double sigma;
 	private SimpleVector midpoint;	
 	private SimpleVector direction;
 	
 	
 	public MovingGaussian (int imageWidth, int imageHeight, double [] imageSpacing, double [] meanValue,
-			double [] standardDeviation, double frequency, double [] changedMeanValue, double [] changedStandardDeviation){
+			double [] standardDeviation, double frequency, double [] changedMeanValue, double [] changedStandardDeviation,double sigma){
 		
 		//create GaussianBlob
-		super(imageWidth, imageHeight, imageSpacing, meanValue, standardDeviation);		
+		super(imageWidth, imageHeight, imageSpacing, meanValue, standardDeviation,sigma);		
 		this.frequency = frequency;
 		this.changedMeanValue = changedMeanValue;
 		this.changedStandardDeviation = changedStandardDeviation;
+		this.sigma = sigma;
 		
 		this.midpoint = new SimpleVector(meanValue[0],meanValue[1],standardDeviation[0],standardDeviation[1]);
 		this.midpoint.add(new SimpleVector(changedMeanValue[0],changedMeanValue[1],changedStandardDeviation[0],changedStandardDeviation[1]));
@@ -63,7 +65,8 @@ public class MovingGaussian extends GaussianBlob {
 		double [] mean = {currentPosition.getElement(0),currentPosition.getElement(1)};
 		double [] deviation = {currentPosition.getElement(2),currentPosition.getElement(3)};		
 		
-		initializeGauss(this, mean, deviation);
+		initializeGauss(this, mean, deviation, this.sigma);
+		
 		
 		Grid2D result = new Grid2D(this);
 		
