@@ -120,7 +120,7 @@ public class GaussianBlob extends Grid2D {
 		int imageWidth = 300;
 		int imageHeight = 300;
 		double[] imageSpacing = { 1.0d, 1.0d };
-		double sigma = 10.d;
+		double sigma = 3.d;
 		boolean writeFFT = true;
 		boolean saveImages = false;
 
@@ -128,7 +128,7 @@ public class GaussianBlob extends Grid2D {
 		int numberProjections = 2 * 180;
 		double detectorSpacing = 1.0d;
 		int numberPixel = 500;
-		double timeFactor = 10.0d / numberProjections; // time associated with one projection in seconds
+		double timeFactor = 23.0d / numberProjections; // time associated with one projection in seconds
 
 		double frequency = 1.0d; // in 1/second
 		
@@ -218,30 +218,29 @@ public class GaussianBlob extends Grid2D {
 
 			ImagePlus imageSino1 = ImageUtil.wrapGrid(sino1, title);
 			IJ.save(imageSino1,
-					"/home/cip/medtech2011/ef58ozyd/Projektarbeit/Ausarbeitung/Reality_Sino11.jpg");
+					"/home/cip/medtech2011/ef58ozyd/Projektarbeit/Simulation5/30Perioden/1.2_Sino1.jpg");
 
 			ImagePlus imageBack = ImageUtil.wrapGrid(reconstruct, title);
 			IJ.save(imageBack,
-					"/home/cip/medtech2011/ef58ozyd/Projektarbeit/Ausarbeitung/Reality_Back1.jpg");
+					"/home/cip/medtech2011/ef58ozyd/Projektarbeit/Simulation5/30Perioden/1.2_Back.jpg");
 
 			ImagePlus imageSino2 = ImageUtil.wrapGrid(sino2, title);
 			IJ.save(imageSino2,
-					"/home/cip/medtech2011/ef58ozyd/Projektarbeit/Ausarbeitung/Reality_Sino12.jpg");
+					"/home/cip/medtech2011/ef58ozyd/Projektarbeit/Simulation5/30Perioden/1.2_Sino2.jpg");
 
 			String titleOff = "Offset";
 
 			ImagePlus imageSino1Off = ImageUtil.wrapGrid(sino1Off, titleOff);
 			IJ.save(imageSino1Off,
-					"/home/cip/medtech2011/ef58ozyd/Projektarbeit/Ausarbeitung/Reality_Sino21.jpg");
+					"/home/cip/medtech2011/ef58ozyd/Projektarbeit/Simulation5/30Perioden/2.2_Sino1.jpg");
 
-			ImagePlus imageBackOff = ImageUtil.wrapGrid(reconstructOff,
-					titleOff);
+			ImagePlus imageBackOff = ImageUtil.wrapGrid(reconstructOff,	titleOff);
 			IJ.save(imageBackOff,
-					"/home/cip/medtech2011/ef58ozyd/Projektarbeit/Ausarbeitung/Reality_Back2.jpg");
+					"/home/cip/medtech2011/ef58ozyd/Projektarbeit/Simulation5/30Perioden/2.2_Back.jpg");
 
 			ImagePlus imageSino2Off = ImageUtil.wrapGrid(sino2Off, titleOff);
 			IJ.save(imageSino2Off,
-					"/home/cip/medtech2011/ef58ozyd/Projektarbeit/Ausarbeitung/Reality_Sino22.jpg");
+					"/home/cip/medtech2011/ef58ozyd/Projektarbeit/Simulation5/30Perioden/2.2_Sino2.jpg");
 		}
 
 		// Design trajectory
@@ -274,24 +273,43 @@ public class GaussianBlob extends Grid2D {
 			float[] offset1 = new float[numberProjections];
 
 			for (int y = 0; y < trajectoryImage.getHeight(); y++) {
-				pulsating2[y] = 0.f;
+				
+				int [] index = new int [2];
+				int i = 0;
+				
 				for (int x = 1; x < trajectoryImage.getWidth(); x++) {
-					if (trajectoryImage.getAtIndex(x, y) > trajectoryImage
-							.getAtIndex(x - 1, y)) {
-
-						pulsating2[y] = sino2.getAtIndex(x, y);
-						pulsating1[y] = sino1.getAtIndex(x, y);
-
+					
+					if(trajectoryImage.getAtIndex(x,y) != 0 && i < 2){
+						index[i] = x;
+						i++;
 					}
-
-					if (trajectoryImage.getAtIndex(x, y) > trajectoryImage
-							.getAtIndex(x - 1, y)) {
-
-						offset2[y] = sino2Off.getAtIndex(x, y);
-						offset1[y] = sino1Off.getAtIndex(x, y);
-
-					}
+					
+					
+//					if (trajectoryImage.getAtIndex(x, y) > trajectoryImage
+//							.getAtIndex(x - 1, y)) {
+//
+//						pulsating2[y] = sino2.getAtIndex(x, y);
+//						pulsating1[y] = sino1.getAtIndex(x, y);
+//
+//					}
+//
+//					if (trajectoryImage.getAtIndex(x, y) > trajectoryImage
+//							.getAtIndex(x - 1, y)) {
+//
+//						offset2[y] = sino2Off.getAtIndex(x, y);
+//						offset1[y] = sino1Off.getAtIndex(x, y);
+//
+//					}
 				}
+				
+				float sum = trajectoryImage.getAtIndex(index[0],y) + trajectoryImage.getAtIndex(index[1],y);
+				float first = trajectoryImage.getAtIndex(index[0],y) / sum;
+				float second = trajectoryImage.getAtIndex(index[1],y) / sum;
+				pulsating2[y] = first*sino2.getAtIndex(index[0], y) + second*sino2.getAtIndex(index[1], y);
+				pulsating1[y] = first*sino1.getAtIndex(index[0], y) + second*sino1.getAtIndex(index[1], y);
+				offset2[y] = first*sino2Off.getAtIndex(index[0], y) + second*sino2Off.getAtIndex(index[1], y);
+				offset1[y] = first*sino1Off.getAtIndex(index[0], y) + second*sino1Off.getAtIndex(index[1], y);
+				
 			}
 
 			String filename1 = "Pulsating1.txt";
