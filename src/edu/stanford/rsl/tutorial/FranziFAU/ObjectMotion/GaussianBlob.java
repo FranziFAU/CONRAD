@@ -122,7 +122,7 @@ public class GaussianBlob extends Grid2D {
 		double[] imageSpacing = { 1.0d, 1.0d };
 		double sigma = 3.d;
 		boolean writeFFT = true;
-		boolean saveImages = false;
+		boolean saveImages = true;
 
 		// Projection
 		int numberProjections = 2 * 180;
@@ -218,29 +218,29 @@ public class GaussianBlob extends Grid2D {
 
 			ImagePlus imageSino1 = ImageUtil.wrapGrid(sino1, title);
 			IJ.save(imageSino1,
-					"/home/cip/medtech2011/ef58ozyd/Projektarbeit/Simulation5/30Perioden/1.2_Sino1.jpg");
+					"/home/cip/medtech2011/ef58ozyd/Projektarbeit/Simulation5/23Perioden/1.3_Sino1.jpg");
 
 			ImagePlus imageBack = ImageUtil.wrapGrid(reconstruct, title);
 			IJ.save(imageBack,
-					"/home/cip/medtech2011/ef58ozyd/Projektarbeit/Simulation5/30Perioden/1.2_Back.jpg");
+					"/home/cip/medtech2011/ef58ozyd/Projektarbeit/Simulation5/23Perioden/1.3_Back.jpg");
 
 			ImagePlus imageSino2 = ImageUtil.wrapGrid(sino2, title);
 			IJ.save(imageSino2,
-					"/home/cip/medtech2011/ef58ozyd/Projektarbeit/Simulation5/30Perioden/1.2_Sino2.jpg");
+					"/home/cip/medtech2011/ef58ozyd/Projektarbeit/Simulation5/23Perioden/1.3_Sino2.jpg");
 
 			String titleOff = "Offset";
 
 			ImagePlus imageSino1Off = ImageUtil.wrapGrid(sino1Off, titleOff);
 			IJ.save(imageSino1Off,
-					"/home/cip/medtech2011/ef58ozyd/Projektarbeit/Simulation5/30Perioden/2.2_Sino1.jpg");
+					"/home/cip/medtech2011/ef58ozyd/Projektarbeit/Simulation5/23Perioden/2.3_Sino1.jpg");
 
 			ImagePlus imageBackOff = ImageUtil.wrapGrid(reconstructOff,	titleOff);
 			IJ.save(imageBackOff,
-					"/home/cip/medtech2011/ef58ozyd/Projektarbeit/Simulation5/30Perioden/2.2_Back.jpg");
+					"/home/cip/medtech2011/ef58ozyd/Projektarbeit/Simulation5/23Perioden/2.3_Back.jpg");
 
 			ImagePlus imageSino2Off = ImageUtil.wrapGrid(sino2Off, titleOff);
 			IJ.save(imageSino2Off,
-					"/home/cip/medtech2011/ef58ozyd/Projektarbeit/Simulation5/30Perioden/2.2_Sino2.jpg");
+					"/home/cip/medtech2011/ef58ozyd/Projektarbeit/Simulation5/23Perioden/2.3_Sino2.jpg");
 		}
 
 		// Design trajectory
