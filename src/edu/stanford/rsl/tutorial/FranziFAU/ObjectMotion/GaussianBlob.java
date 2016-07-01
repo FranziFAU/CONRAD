@@ -110,7 +110,7 @@ public class GaussianBlob extends Grid2D {
 
 		// Loading Trajcectory
 
-		String file = "/home/cip/medtech2011/ef58ozyd/Projektarbeit/Trajectory3.tif";
+		String file = "/media/usb/Projektarbeit/Simulation7/KleinerKreis/Trajectory125.tif";
 		Grid2D trajectoryImage = ImageUtil.wrapImagePlus(IJ.openImage(file))
 				.getSubGrid(0);
 		// trajectoryImage.show("Trajectory");
@@ -124,6 +124,7 @@ public class GaussianBlob extends Grid2D {
 		double sigma;
 		boolean writeFFT = true;
 		boolean saveImages = true;
+		String speicherort = "/media/usb/Projektarbeit/Simulation7/KleinerKreis/";
 
 		// Projection
 		int numberProjections = 2 * 180;
@@ -131,26 +132,27 @@ public class GaussianBlob extends Grid2D {
 		int numberPixel = 500;
 		double t = 1.0d / numberProjections; // time associated with one
 												// projection in seconds
-		double timeFactor;
+		double timeFactor = 0.0;
 		double frequency = 1.0d; // in 1/second
 
 		// GaussianBlob pulsating
 
 		double[] meanValue = { 0.0d, 0.0d };
-		double[] standardDeviation = { 40.0d, 40.0d };
+		double[] standardDeviation = { 20.0d, 20.0d };
 		double[] changedMeanValue = { 0.0d, 0.0d };
-		double[] changedStandardDeviation = { 5.0d, 5.0d };
+		double[] changedStandardDeviation = { 5d, 5d };
 
 		double sigmaC = (standardDeviation[0] + changedStandardDeviation[0]) / 2;
 		double shift = standardDeviation[0] - sigmaC;
 
-		double[] meanValueOff = { 0.0d, -shift };
+		//Gaussian Blob shifted
+		double[] meanValueOff = { 0.0d, -shift};
 		double[] changedMeanValueOff = { 0.0d, shift };
 		double[] standardDeviationOff = { sigmaC, sigmaC };
 		double[] changedStandardDeviationOff = { sigmaC, sigmaC };
 
-		for (int curT = 5; curT <= 20; curT++) {
-			for (int curS = 1; curS <= 10; curS++) {
+		for (int curT = 21; curT <= 23; curT++) {
+			for (int curS = 0; curS <= 10; curS++) {
 
 				timeFactor = curT * t;
 				sigma = curS * s;
@@ -160,9 +162,9 @@ public class GaussianBlob extends Grid2D {
 						imageSpacing, meanValue, standardDeviation, sigma);
 //				object.show("GaussianBlob");
 
-				GaussianBlob changedObject = new GaussianBlob(imageWidth,
-						imageHeight, imageSpacing, changedMeanValue,
-						changedStandardDeviation, sigma);
+//				GaussianBlob changedObject = new GaussianBlob(imageWidth,
+//						imageHeight, imageSpacing, changedMeanValue,
+//						changedStandardDeviation, sigma);
 //				changedObject.show("changedGaussianBlob");
 
 				MovingGaussian movingObject = new MovingGaussian(imageWidth,
@@ -195,10 +197,10 @@ public class GaussianBlob extends Grid2D {
 						standardDeviationOff, sigma);
 //				objectOff.show("Off");
 
-				GaussianBlob changedObjectOff = new GaussianBlob(imageWidth,
-						imageHeight, imageSpacing, changedMeanValueOff,
-						changedStandardDeviationOff, sigma);
-//				changedObjectOff.show("Off2");
+//				GaussianBlob changedObjectOff = new GaussianBlob(imageWidth,
+//						imageHeight, imageSpacing, changedMeanValueOff,
+//						changedStandardDeviationOff, sigma);
+////				changedObjectOff.show("Off2");
 
 				MovingGaussian movingObjectOff = new MovingGaussian(imageWidth,
 						imageHeight, imageSpacing, meanValueOff,
@@ -229,30 +231,30 @@ public class GaussianBlob extends Grid2D {
 				if (saveImages) {
 					String title = "Pulsating";
 					
-					String a = String.format("/home/cip/medtech2011/ef58ozyd/Projektarbeit/Simulation6/1.%d.%d_Sino1.tif", curT,curS);
+					String a = String.format("%sBilder/1.%d.%d_Sino1.tif",speicherort, curT,curS);
 
 					ImagePlus imageSino1 = ImageUtil.wrapGrid(sino1, title);
 					IJ.save(imageSino1,a);
 					
-					String b = String.format("/home/cip/medtech2011/ef58ozyd/Projektarbeit/Simulation6/1.%d.%d_Back.tif", curT,curS);
+					String b = String.format("%sBilder/1.%d.%d_Back.tif",speicherort, curT,curS);
 					ImagePlus imageBack = ImageUtil.wrapGrid(reconstruct, title);
 					IJ.save(imageBack,b);
 
-					String c = String.format("/home/cip/medtech2011/ef58ozyd/Projektarbeit/Simulation6/1.%d.%d_Sino2.tif",curT,curS);
+					String c = String.format("%sBilder/1.%d.%d_Sino2.tif",speicherort, curT,curS);
 					ImagePlus imageSino2 = ImageUtil.wrapGrid(sino2, title);
 					IJ.save(imageSino2,c);
 
 					String titleOff = "Offset";
 
-					String d = String.format("/home/cip/medtech2011/ef58ozyd/Projektarbeit/Simulation6/2.%d.%d_Sino1.tif", curT,curS);
+					String d = String.format("%sBilder/2.%d.%d_Sino1.tif",speicherort, curT,curS);
 					ImagePlus imageSino1Off = ImageUtil.wrapGrid(sino1Off,titleOff);
 					IJ.save(imageSino1Off,d);
 
-					String e = String.format("/home/cip/medtech2011/ef58ozyd/Projektarbeit/Simulation6/2.%d.%d_Back.tif",curT,curS);
+					String e = String.format("%sBilder/2.%d.%d_Back.tif",speicherort,curT,curS);
 					ImagePlus imageBackOff = ImageUtil.wrapGrid(reconstructOff,titleOff);
 					IJ.save(imageBackOff,e);
 
-					String g = String.format("/home/cip/medtech2011/ef58ozyd/Projektarbeit/Simulation6/2.%d.%d_Sino2.tif", curT,curS);
+					String g = String.format("%sBilder/2.%d.%d_Sino2.tif", speicherort, curT,curS);
 					ImagePlus imageSino2Off = ImageUtil.wrapGrid(sino2Off,titleOff);
 					IJ.save(imageSino2Off,g);
 				}
@@ -294,7 +296,7 @@ public class GaussianBlob extends Grid2D {
 
 					}
 
-					String filename1 = String.format("/home/cip/medtech2011/ef58ozyd/Projektarbeit/Simulation6/Pulsating1.%d.%dtxt",curT,curS);
+					String filename1 = String.format("%sFrequenzdaten SigmaC/Pulsating1.%d.%d.txt",speicherort,curT,curS);
 
 					BufferedWriter outputWriter1 = null;
 					outputWriter1 = new BufferedWriter(
@@ -308,7 +310,7 @@ public class GaussianBlob extends Grid2D {
 					}
 					outputWriter1.close();
 
-					String filename2 = String.format("/home/cip/medtech2011/ef58ozyd/Projektarbeit/Simulation6/Pulsating2.%d.%dtxt",curT,curS);
+					String filename2 = String.format("%sFrequenzdaten SigmaC/Pulsating2.%d.%d.txt",speicherort,curT,curS);
 
 					BufferedWriter outputWriter2 = null;
 					outputWriter2 = new BufferedWriter(
@@ -322,7 +324,7 @@ public class GaussianBlob extends Grid2D {
 					}
 					outputWriter2.close();
 
-					String filenameOff1 = String.format("/home/cip/medtech2011/ef58ozyd/Projektarbeit/Simulation6/Offset1.%d.%dtxt",curT,curS);
+					String filenameOff1 = String.format("%sFrequenzdaten SigmaC/Offset1.%d.%d.txt",speicherort,curT,curS);
 
 					BufferedWriter outputWriterOff1 = null;
 					outputWriterOff1 = new BufferedWriter(new FileWriter(
@@ -336,7 +338,7 @@ public class GaussianBlob extends Grid2D {
 					}
 					outputWriterOff1.close();
 
-					String filenameOff2 = String.format("/home/cip/medtech2011/ef58ozyd/Projektarbeit/Simulation6/Offset2.%d.%dtxt",curT,curS);
+					String filenameOff2 = String.format("%sFrequenzdaten SigmaC/Offset2.%d.%d.txt",speicherort,curT,curS);
 
 					BufferedWriter outputWriterOff2 = null;
 					outputWriterOff2 = new BufferedWriter(new FileWriter(
@@ -356,25 +358,25 @@ public class GaussianBlob extends Grid2D {
 
 		// Design trajectory
 
-		// Grid2D singlePoint = new Grid2D(imageWidth, imageHeight);
-		// singlePoint.setSpacing(imageSpacing);
-		// singlePoint.setOrigin((-((imageWidth)*imageSpacing[0])/2),(-((imageHeight)*imageSpacing[1])/2));
-		// double [] idx = {0.0d,40};
-		// double [] tmp = singlePoint.physicalToIndex(idx[0], idx[1]);
-		// int [] pixel = {(int)Math.floor(tmp[0]),(int)Math.floor(tmp[1])};
-		// singlePoint.setValue(1.0f, pixel);
-		// singlePoint.show();
-		//
-		// ParallelProjection sinogrammT = new
-		// ParallelProjection(numberProjections, detectorSpacing, numberPixel,
-		// timeFactor);
-		// Grid2D trajectory = sinogrammT.createSinogramm(singlePoint);
-		// trajectory.show("Result");
-		// String titleTrajectory = "Trajectory";
-		//
-		// ImagePlus trajectoryImg = ImageUtil.wrapGrid(trajectory,
-		// titleTrajectory);
-		// IJ.save(trajectoryImg,"/home/cip/medtech2011/ef58ozyd/Projektarbeit/Trajectory3.tif");
+//		 Grid2D singlePoint = new Grid2D(imageWidth, imageHeight);
+//		 singlePoint.setSpacing(imageSpacing);
+//		 singlePoint.setOrigin((-((imageWidth)*imageSpacing[0])/2),(-((imageHeight)*imageSpacing[1])/2));
+//		 double [] idx = {0.0d,10};
+//		 double [] tmp = singlePoint.physicalToIndex(idx[0], idx[1]);
+//		 int [] pixel = {(int)Math.floor(tmp[0]),(int)Math.floor(tmp[1])};
+//		 singlePoint.setValue(1.0f, pixel);
+//		 singlePoint.show();
+//		
+//		 ParallelProjection sinogrammT = new
+//		 ParallelProjection(numberProjections, detectorSpacing, numberPixel,
+//		 timeFactor);
+//		 Grid2D trajectory = sinogrammT.createSinogramm(singlePoint);
+//		 trajectory.show("Result");
+//		 String titleTrajectory = "Trajectory";
+//		
+//		 ImagePlus trajectoryImg = ImageUtil.wrapGrid(trajectory,
+//		 titleTrajectory);
+//		 IJ.save(trajectoryImg,"/home/cip/medtech2011/ef58ozyd/Projektarbeit/Trajectory10.tif");
 
 		System.out.print("Ende");
 
